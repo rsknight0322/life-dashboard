@@ -644,7 +644,7 @@
 
       <!-- Freestanding closing image — bottom right -->
 
-      <\!-- TODAY'S TASKS PREVIEW -->
+      <!-- TODAY'S TASKS PREVIEW -->
       <div class="section">
         <div class="section-header">
           <div class="section-label">Today's Tasks</div>
@@ -1110,8 +1110,8 @@
       var el = document.getElementById('daily-todos-preview');
       if (!el) return;
       var today = todayStr();
-      var all = sortedTodos(TODOS.filter(function(t) { return !t.done && t.due && t.due <= today; }));
-      if (!all.length) { el.innerHTML = '<div class="preview-empty">No tasks due today \u2014 enjoy your day \ud83c\udf3f</div>'; return; }
+      var all = sortedTodos(TODOS.filter(function(t) { return !t.done; }));
+      if (!all.length) { el.innerHTML = '<div class="preview-empty">No tasks yet — enjoy your day 🌿</div>'; return; }
       var shown = all.slice(0,5);
       var more  = all.length - shown.length;
       el.innerHTML = shown.map(function(t) {
