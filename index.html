@@ -1127,9 +1127,15 @@
       var t = TODOS.find(function(x) { return x.id===id; });
       if (!t) return;
       t.done = !t.done;
+      if (t.fromSheet && t.done) {
+        _sheetDone.push(String(id)); saveSheetDone();
+        TODOS = TODOS.filter(function(x) { return x.id!==id; });
+      }
       saveTodos(); renderTodoList(); renderTodayPreview();
     }
     function deleteTodo(id) {
+      var t = TODOS.find(function(x) { return x.id===id; });
+      if (t && t.fromSheet) { _sheetDone.push(String(id)); saveSheetDone(); }
       TODOS = TODOS.filter(function(x) { return x.id!==id; });
       saveTodos(); renderTodoList(); renderTodayPreview();
     }
@@ -1171,6 +1177,60 @@
         document.getElementById('page-todos').classList.add('active');
       });
     }
+
+    /* ════ GOOGLE SHEETS SYNC ════ */
+    // After setup, paste your two URLs below:
+    var SHEETS_CSV_URL = 'https://docs.google.com/spreadsheets/d/15qLjq4dV24NAhOvg12_culKBnyhK6eH_DCIGqj6vxHY/export?format=csv'; // e.g. https://docs.google.com/spreadsheets/d/YOUR_ID/export?format=csv
+    var SCRIPT_URL     = 'https://script.google.com/macros/s/AKfycbxzEsOtRxa3KARVRwQcInztIi7lXF3bHdZOHUQzkuR2o1WrTjrrxZRf6gp5xAP6RPoT/exec'; // e.g. https://script.google.com/macros/s/YOUR_ID/exec
+
+    var _sheetDone = JSON.parse(localStorage.getItem('_sheet_done') || '[]');
+    function saveSheetDone() { localStorage.setItem('_sheet_done', JSON.stringify(_sheetDone)); }
+
+    function parseCSVLine(line) {
+      var result = [], cur = '', inQ = false;
+      for (var i = 0; i < line.length; i++) {
+        var c = line[i];
+        if (c === '"') { inQ = !inQ; }
+        else if (c === ',' && !inQ) { result.push(cur.trim()); cur = ''; }
+        else { cur += c; }
+      }
+      result.push(cur.trim());
+      return result;
+    }
+
+    async function fetchSheetTasks() {
+      if (!SHEETS_CSV_URL) return;
+      try {
+        var r    = await fetch(SHEETS_CSV_URL);
+        var text = await r.text();
+        var rows = text.trim().split('\n').slice(1);
+        TODOS = TODOS.filter(function(t) { return !t.fromSheet; });
+        rows.forEach(function(line, idx) {
+          if (!line.trim()) return;
+          var cols = parseCSVLine(line);
+          var id   = 'sheet_' + idx;
+          if (_sheetDone.indexOf(id) !== -1) return;
+          var task = (cols[0] || '').replace(/^"|"$/g, '').trim();
+          if (!task) return;
+          TODOS.push({
+            id:        id,
+            text:      task,
+            priority:  (cols[1] || 'medium').toLowerCase().replace(/^"|"$/g, ''),
+            category:  (cols[2] || 'personal').toLowerCase().replace(/^"|"$/g, ''),
+            due:       (cols[3] || '').replace(/^"|"$/g, '') || null,
+            done:      false,
+            fromSheet: true,
+            createdAt: 0
+          });
+        });
+        saveTodos();
+        renderTodoList();
+        renderTodayPreview();
+      } catch(e) { /* silent fail if offline */ }
+    }
+
+    fetchSheetTasks();
+
     renderTodoList();
     renderTodayPreview();
 
