@@ -1029,13 +1029,13 @@
       return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
     }
     function fmtDate(str) {
-      if (\!str) return '';
+      if (!str) return '';
       var p = str.split('-');
       var mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
       return mo[parseInt(p[1])-1] + ' ' + parseInt(p[2]);
     }
     function dueLabelClass(due) {
-      if (\!due) return { label:'', cls:'' };
+      if (!due) return { label:'', cls:'' };
       var today = todayStr();
       if (due < today)   return { label:'Overdue \u00b7 ' + fmtDate(due), cls:'due-overdue' };
       if (due === today)  return { label:'Today', cls:'due-today' };
@@ -1053,31 +1053,31 @@
       var today = todayStr();
       var pOrd = { high:0, medium:1, low:2 };
       function ds(t) {
-        if (\!t.due) return 3;
+        if (!t.due) return 3;
         if (t.due < today) return 0;
         if (t.due === today) return 1;
         return 2;
       }
       return arr.slice().sort(function(a,b) {
         var d = ds(a) - ds(b);
-        return d \!== 0 ? d : (pOrd[a.priority]||1) - (pOrd[b.priority]||1);
+        return d !== 0 ? d : (pOrd[a.priority]||1) - (pOrd[b.priority]||1);
       });
     }
     function getFiltered() {
       var today = todayStr();
       return sortedTodos(TODOS.filter(function(t) {
-        if (currentFilter === 'today')    return \!t.done && t.due === today;
-        if (currentFilter === 'upcoming') return \!t.done && t.due && t.due > today;
+        if (currentFilter === 'today')    return !t.done && t.due === today;
+        if (currentFilter === 'upcoming') return !t.done && t.due && t.due > today;
         if (currentFilter === 'done')     return t.done;
-        return \!t.done;
+        return !t.done;
       }));
     }
     function renderTodoList() {
       var el = document.getElementById('todo-list');
-      if (\!el) return;
+      if (!el) return;
       var list = getFiltered();
       var msgs = { all:'Nothing on your list \u2014 you\'re ahead of the game \u2713', today:'Nothing due today.', upcoming:'No upcoming tasks.', done:'No completed tasks yet.' };
-      if (\!list.length) { el.innerHTML = '<div class="todo-empty">' + (msgs[currentFilter]||'All clear.') + '</div>'; return; }
+      if (!list.length) { el.innerHTML = '<div class="todo-empty">' + (msgs[currentFilter]||'All clear.') + '</div>'; return; }
       el.innerHTML = list.map(function(t) {
         var dl = dueLabelClass(t.due);
         var prLabel = { high:'High', medium:'Medium', low:'Low' }[t.priority] || 'Medium';
@@ -1097,10 +1097,10 @@
     }
     function renderTodayPreview() {
       var el = document.getElementById('daily-todos-preview');
-      if (\!el) return;
+      if (!el) return;
       var today = todayStr();
-      var all = sortedTodos(TODOS.filter(function(t) { return \!t.done && t.due && t.due <= today; }));
-      if (\!all.length) { el.innerHTML = '<div class="preview-empty">No tasks due today \u2014 enjoy your day \ud83c\udf3f</div>'; return; }
+      var all = sortedTodos(TODOS.filter(function(t) { return !t.done && t.due && t.due <= today; }));
+      if (!all.length) { el.innerHTML = '<div class="preview-empty">No tasks due today \u2014 enjoy your day \ud83c\udf3f</div>'; return; }
       var shown = all.slice(0,5);
       var more  = all.length - shown.length;
       el.innerHTML = shown.map(function(t) {
@@ -1114,18 +1114,18 @@
     }
     function toggleTodo(id) {
       var t = TODOS.find(function(x) { return x.id===id; });
-      if (\!t) return;
-      t.done = \!t.done;
+      if (!t) return;
+      t.done = !t.done;
       saveTodos(); renderTodoList(); renderTodayPreview();
     }
     function deleteTodo(id) {
-      TODOS = TODOS.filter(function(x) { return x.id\!==id; });
+      TODOS = TODOS.filter(function(x) { return x.id!==id; });
       saveTodos(); renderTodoList(); renderTodayPreview();
     }
     function addTodo() {
       var input = document.getElementById('todo-input');
       var text  = input ? input.value.trim() : '';
-      if (\!text) { if(input) input.focus(); return; }
+      if (!text) { if(input) input.focus(); return; }
       TODOS.push({
         id: Date.now(), text: text,
         priority: document.getElementById('todo-priority').value,
