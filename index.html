@@ -492,6 +492,44 @@
       font-size: 12.5px; color: var(--muted); font-style: italic; opacity: 0.7;
     }
 
+
+    /* ── Birthday preview (routines page) ── */
+    .bday-preview-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 0; border-bottom: 1px solid rgba(212,196,174,0.35);
+    }
+    .bday-preview-item:last-child { border-bottom: none; }
+    .bday-preview-name { font-size: 13px; color: var(--text); flex: 1; font-weight: 500; }
+    .bday-preview-rel  { font-size: 11px; color: var(--muted); }
+    .bday-preview-date { font-size: 11px; color: var(--muted); }
+    .bday-days-badge {
+      font-size: 9.5px; font-weight: 600; padding: 2px 9px;
+      border-radius: 10px; white-space: nowrap;
+    }
+    .bday-urgent { background: rgba(184,107,78,0.15); color: var(--terra); }
+    .bday-soon   { background: rgba(123,123,80,0.12); color: var(--olive); }
+    .bday-empty  { text-align:center; padding:16px 12px; font-size:12.5px; color:var(--muted); font-style:italic; opacity:0.7; }
+
+    /* ── Birthday full page ── */
+    .bday-list { display: flex; flex-direction: column; gap: 12px; }
+    .bday-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; }
+    .bday-card-top { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:12px; }
+    .bday-card-name { font-family:'Cormorant Garamond',serif; font-size:19px; font-weight:500; color:var(--br-dark); margin-bottom:5px; }
+    .bday-card-meta { display:flex; align-items:center; gap:8px; }
+    .bday-relation { font-size:9.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); background:var(--linen); padding:2px 9px; border-radius:10px; }
+    .bday-card-date { font-size:12px; color:var(--muted); }
+    .bday-card-right { text-align:right; flex-shrink:0; padding-left:12px; }
+    .bday-days-num { font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:400; line-height:1; color:var(--br-dark); }
+    .bday-days-sub { font-size:10px; color:var(--muted); margin-top:2px; }
+    .bday-gift-label { font-size:9.5px; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+    .bday-gift-input {
+      width:100%; border:1px solid var(--border); border-radius:7px;
+      padding:8px 12px; font-family:'DM Sans',sans-serif; font-size:12.5px;
+      color:var(--text); background:white; outline:none; resize:none;
+      min-height:38px; overflow:hidden;
+    }
+    .bday-gift-input:focus { border-color: var(--olive); }
+
     /* ── Coming soon ── */
 
     .coming-soon { text-align: center; padding: 90px 40px; }
@@ -654,6 +692,16 @@
         <div class="card" id="daily-todos-preview"></div>
       </div>
 
+
+      <!-- UPCOMING BIRTHDAYS PREVIEW -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-label">Upcoming Birthdays</div>
+          <div class="section-rule"></div>
+        </div>
+        <div class="card" id="birthday-preview"></div>
+      </div>
+
       <div class="page-closing-art">
         <img src="3.png" alt="">
       </div>
@@ -765,9 +813,11 @@
         <div class="coming-soon-sub">Coming soon.</div></div>
     </div>
     <div class="page" id="page-birthdays">
-      <div class="coming-soon"><div class="coming-soon-icon">🎂</div>
-        <div class="coming-soon-title">birthdays</div>
-        <div class="coming-soon-sub">Coming soon.</div></div>
+      <div class="page-accent"></div>
+      <div class="page-eyebrow">life admin</div>
+      <h1 class="page-title" style="margin-bottom:6px;">Birth<em>days</em></h1>
+      <p class="page-subtitle" style="margin-bottom:28px;">The people you love — never forget a date.</p>
+      <div class="bday-list" id="bday-list"></div>
     </div>
     <div class="page" id="page-wine">
       <div class="coming-soon"><div class="coming-soon-icon">🍇</div>
@@ -1231,9 +1281,110 @@
 
     fetchSheetTasks();
 
+
+    /* ════ BIRTHDAYS ════ */
+    var BMONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    var BIRTHDAYS = [
+      { name:'Karmien',      relation:'Cousin',  month:1,  day:3  },
+      { name:'Mom',          relation:'Mom',     month:1,  day:5  },
+      { name:'Kiki',         relation:'Friend',  month:1,  day:23 },
+      { name:'Ari',          relation:'Sister',  month:1,  day:29 },
+      { name:'Bianca',       relation:'Friend',  month:2,  day:11 },
+      { name:'GG',           relation:'Grandma', month:2,  day:18 },
+      { name:'Jacques',      relation:'Friend',  month:2,  day:22 },
+      { name:'Nahla',        relation:'Niece',   month:3,  day:22 },
+      { name:'Ryadah',       relation:'Friend',  month:4,  day:1  },
+      { name:'Terry Dustin', relation:'Friend',  month:4,  day:3  },
+      { name:'Chi',          relation:'Niece',   month:4,  day:4  },
+      { name:'Dad',          relation:'Dad',     month:4,  day:7  },
+      { name:'Tomi',         relation:'Friend',  month:4,  day:25 },
+      { name:'Dee',          relation:'Aunt',    month:4,  day:26 },
+      { name:'Denzel',       relation:'Uncle',   month:4,  day:30 },
+      { name:'Chloe',        relation:'Dog',     month:5,  day:12 },
+      { name:'Makai',        relation:'Friend',  month:6,  day:14 },
+      { name:'Ryan',         relation:'Friend',  month:7,  day:23 },
+      { name:'Adrianne',     relation:'Friend',  month:10, day:26 },
+      { name:'MJ',           relation:'Friend',  month:12, day:7  },
+      { name:'Jameka',       relation:'Friend',  month:12, day:8  }
+    ];
+
+    function daysUntil(month, day) {
+      var now   = new Date();
+      var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      var bday  = new Date(now.getFullYear(), month - 1, day);
+      if (bday < today) bday = new Date(now.getFullYear() + 1, month - 1, day);
+      return Math.round((bday - today) / 86400000);
+    }
+
+    function fmtBday(month, day) { return BMONTHS[month-1] + ' ' + day; }
+
+    function renderBirthdayPreview() {
+      var el = document.getElementById('birthday-preview');
+      if (!el) return;
+      var upcoming = BIRTHDAYS
+        .map(function(b) { return { name:b.name, relation:b.relation, month:b.month, day:b.day, days:daysUntil(b.month, b.day) }; })
+        .filter(function(b) { return b.days <= 21; })
+        .sort(function(a,b) { return a.days - b.days; });
+      if (!upcoming.length) {
+        el.innerHTML = '<div class="bday-empty">No birthdays in the next 3 weeks</div>';
+        return;
+      }
+      el.innerHTML = upcoming.map(function(b) {
+        var cls   = b.days <= 7 ? 'bday-urgent' : 'bday-soon';
+        var label = b.days === 0 ? 'Today!' : b.days === 1 ? 'Tomorrow!' : 'In ' + b.days + ' days';
+        return '<div class="bday-preview-item">' +
+          '<div class="bday-preview-name">' + b.name + '</div>' +
+          '<div class="bday-preview-rel">' + b.relation + '</div>' +
+          '<div class="bday-preview-date">' + fmtBday(b.month, b.day) + '</div>' +
+          '<div class="bday-days-badge ' + cls + '">' + label + '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    function renderBirthdayPage() {
+      var el = document.getElementById('bday-list');
+      if (!el) return;
+      var sorted = BIRTHDAYS
+        .map(function(b) { return { name:b.name, relation:b.relation, month:b.month, day:b.day, days:daysUntil(b.month, b.day) }; })
+        .sort(function(a,b) { return a.days - b.days; });
+      el.innerHTML = sorted.map(function(b) {
+        var gift     = localStorage.getItem('_gift_' + b.name) || '';
+        var numLabel = b.days === 0 ? 'Today!' : b.days === 1 ? '1 day' : b.days + ' days';
+        var numCls   = b.days <= 7 ? ' bday-urgent' : b.days <= 21 ? ' bday-soon' : '';
+        return '<div class="bday-card">' +
+          '<div class="bday-card-top">' +
+            '<div>' +
+              '<div class="bday-card-name">' + b.name + '</div>' +
+              '<div class="bday-card-meta">' +
+                '<span class="bday-relation">' + b.relation + '</span>' +
+                '<span class="bday-card-date">' + fmtBday(b.month, b.day) + '</span>' +
+              '</div>' +
+            '</div>' +
+            '<div class="bday-card-right">' +
+              '<div class="bday-days-num' + numCls + '">' + numLabel + '</div>' +
+              '<div class="bday-days-sub">until birthday</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="bday-gift-label">Gift ideas</div>' +
+          '<textarea class="bday-gift-input" placeholder="Add gift ideas..." data-name="' + b.name + '" rows="1">' + escHtml(gift) + '</textarea>' +
+        '</div>';
+      }).join('');
+      el.querySelectorAll('.bday-gift-input').forEach(function(ta) {
+        ta.style.height = ta.scrollHeight + 'px';
+        ta.addEventListener('input', function() { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; });
+        ta.addEventListener('blur',  function() { localStorage.setItem('_gift_' + ta.dataset.name, ta.value); });
+      });
+    }
+
+    renderChecklist('morning-list', MORNING, 'morning');
+    renderChecklist('evening-list', EVENING, 'evening');
+    renderWorkout();
+    renderSupplements();
+    renderSuppDatabase();
     renderTodoList();
     renderTodayPreview();
-
+    renderBirthdayPreview();
+    renderBirthdayPage();
   </script>
 </body>
 </html>
