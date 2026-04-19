@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I'm HER</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cream:      #F5EFE6;
+      --linen:      #EDE4D6;
+      --sidebar-bg: #E9DDD0;
+      --olive:      #7B7B50;
+      --terra:      #B86B4E;
+      --terra-lt:   #D49A84;
+      --br-dark:    #3D2B1F;
+      --br-mid:     #8B7057;
+      --border:     #D4C4AE;
+      --card:       #FAF6F0;
+      --text:       #3D2B1F;
+      --muted:      #9B856E;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* ══ SIDEBAR ═══════════════════════════════════════════════════ */
+    .sidebar {
+      width: 234px;
+      min-width: 234px;
+      background: var(--sidebar-bg);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+    }
+
+    .sb-brand { padding: 26px 22px 0; }
+    .sb-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-weight: 500;
+      font-size: 22px;
+      color: var(--br-dark);
+    }
+    .sb-sub {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .sb-datetime { padding: 16px 22px 0; }
+    .sb-day {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px;
+      font-weight: 400;
+      color: var(--br-dark);
+      line-height: 1;
+    }
+    .sb-date {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+    .sb-time {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 300;
+      color: var(--olive);
+      margin-top: 2px;
+    }
+
+    .sb-weather {
+      margin: 14px 22px 0;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 12px 14px;
+    }
+    .sw-top { display: flex; align-items: center; justify-content: space-between; }
+    .sw-temp { font-family: 'Cormorant Garamond', serif; font-size: 30px; color: var(--br-dark); line-height: 1; }
+    .sw-icon { font-size: 24px; }
+    .sw-desc { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    .sw-range { font-size: 10px; color: var(--muted); margin-top: 3px; }
+    .sw-range b { color: var(--br-mid); font-weight: 500; }
+    .sw-city { font-size: 9.5px; color: var(--muted); margin-top: 3px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.7; }
+    .sw-loading { font-size: 11px; color: var(--muted); font-style: italic; }
+
+    .sb-divider { height: 1px; background: var(--border); margin: 16px 22px 0; }
+
+    .sb-nav { flex: 1; padding: 6px 0 8px; overflow-y: auto; }
+    .nav-group { margin-bottom: 2px; }
+    .nav-group-label {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 12.5px;
+      color: var(--muted);
+      padding: 12px 22px 4px;
+    }
+    .nav-group-label::before { content: '— '; }
+    .nav-group-label::after  { content: ' —'; }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 7px 22px;
+      font-size: 12.5px;
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.12s;
+      user-select: none;
+      border-left: 2px solid transparent;
+    }
+    .nav-item:hover { background: rgba(0,0,0,0.03); }
+    .nav-item.active {
+      background: var(--linen);
+      color: var(--olive);
+      font-weight: 500;
+      border-left-color: var(--olive);
+    }
+    .nav-icon { font-size: 13px; width: 16px; text-align: center; flex-shrink: 0; }
+
+    /* Sidebar portrait — single image, freestanding */
+    .sb-portrait {
+      margin-top: 8px;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .sb-portrait img {
+      width: 100%;
+      display: block;
+    }
+    .sb-quote {
+      padding: 12px 22px 22px;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 11.5px;
+      color: var(--muted);
+      line-height: 1.65;
+      text-align: center;
+    }
+
+    /* ══ MAIN ═══════════════════════════════════════════════════════ */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      background: var(--cream);
+    }
+
+    .page { display: none; padding: 40px 48px 64px; max-width: 860px; }
+    .page.active { display: block; }
+
+    /* ── Page header ── */
+    .page-accent {
+      width: 30px; height: 3px;
+      background: var(--olive);
+      border-radius: 2px;
+      margin-bottom: 12px;
+    }
+    .page-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 32px;
+    }
+    .page-eyebrow {
+      font-size: 9.5px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .page-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 38px;
+      font-weight: 400;
+      color: var(--br-dark);
+      line-height: 1.05;
+      margin-bottom: 6px;
+    }
+    .page-title em { font-style: italic; color: var(--olive); }
+    .page-subtitle { font-size: 12.5px; color: var(--muted); }
+
+    /* Freestanding header portrait — no box, no crop */
+    .header-portrait {
+      width: 130px;
+      flex-shrink: 0;
+      margin-left: 24px;
+      align-self: flex-end;
+    }
+    .header-portrait img {
+      width: 100%;
+      display: block;
+    }
+
+    /* ── Section ── */
+    .section { margin-bottom: 26px; }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .section-label {
+      font-size: 9.5px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .section-rule { flex: 1; height: 1px; background: var(--border); }
+
+    /* ── Card ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 22px;
+    }
+
+    /* ── Checklist ── */
+    .checklist { list-style: none; }
+    .checklist-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 9px 0;
+      border-bottom: 1px solid rgba(212,196,174,0.4);
+      cursor: pointer;
+    }
+    .checklist-item:last-child { border-bottom: none; }
+    .checklist-item.done .item-text {
+      text-decoration: line-through;
+      color: var(--muted);
+      opacity: 0.5;
+    }
+    .check-box {
+      width: 15px; height: 15px; min-width: 15px;
+      border: 1.5px solid var(--border);
+      border-radius: 3px;
+      display: flex; align-items: center; justify-content: center;
+      background: white;
+      transition: all 0.14s;
+    }
+    .checklist-item.done .check-box {
+      background: var(--olive);
+      border-color: var(--olive);
+    }
+    .check-box svg { display: none; }
+    .checklist-item.done .check-box svg { display: block; }
+    .item-text { font-size: 13px; color: var(--text); flex: 1; }
+    .item-time { font-size: 10.5px; color: var(--muted); padding-left: 6px; white-space: nowrap; }
+
+    /* ── 2-col grid ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+    /* ── Workout ── */
+    .workout-badge {
+      display: inline-block;
+      font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+      background: var(--terra); color: white;
+      padding: 3px 10px; border-radius: 20px; margin-bottom: 10px;
+    }
+    .workout-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 21px; font-weight: 500; color: var(--br-dark);
+      margin-bottom: 10px; line-height: 1.1;
+    }
+    .workout-detail {
+      font-size: 12.5px; color: var(--muted);
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(212,196,174,0.35);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .workout-detail:last-child { border-bottom: none; }
+    .workout-detail::before { content: '–'; color: var(--terra-lt); }
+    .rest-card { text-align: center; padding: 20px 12px; }
+    .rest-icon { font-size: 26px; margin-bottom: 8px; }
+    .rest-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic; font-size: 16px; color: var(--muted);
+    }
+
+    /* ── Supplements ── */
+    .supp-item {
+      display: flex; align-items: center; gap: 11px;
+      padding: 9px 0;
+      border-bottom: 1px solid rgba(212,196,174,0.4);
+    }
+    .supp-item:last-child { border-bottom: none; }
+    .supp-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--terra); flex-shrink: 0; }
+    .supp-name { font-size: 12.5px; color: var(--text); flex: 1; }
+    .supp-timing {
+      font-size: 10px; color: var(--muted);
+      background: var(--linen); padding: 2px 9px; border-radius: 10px;
+    }
+
+    /* Freestanding image at page bottom */
+    .page-closing-art {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 32px;
+    }
+    .page-closing-art img {
+      width: 140px;
+      display: block;
+    }
+
+    /* ── Supplements page ── */
+    .supp-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-top: 4px;
+    }
+    .supp-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .supp-card-img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      display: block;
+      background: var(--linen);
+    }
+    .supp-card-img-placeholder {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background: var(--linen);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      opacity: 0.4;
+    }
+    .supp-card-body { padding: 14px 16px 16px; }
+    .supp-card-timing {
+      display: inline-block;
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 20px;
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+    .timing-morning  { background: rgba(123,123,80,0.12); color: var(--olive); }
+    .timing-night    { background: rgba(61,43,31,0.1);    color: var(--br-mid); }
+    .timing-both     { background: rgba(184,107,78,0.12); color: var(--terra); }
+    .supp-card-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--br-dark);
+      line-height: 1.2;
+      margin-bottom: 3px;
+    }
+    .supp-card-brand {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 10px;
+      letter-spacing: 0.02em;
+    }
+    .supp-card-divider {
+      height: 1px;
+      background: var(--border);
+      margin-bottom: 10px;
+    }
+    .supp-card-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .supp-card-row {
+      display: flex;
+      gap: 6px;
+      font-size: 11.5px;
+      line-height: 1.4;
+    }
+    .supp-card-row-label {
+      color: var(--muted);
+      white-space: nowrap;
+      min-width: 48px;
+    }
+    .supp-card-row-val { color: var(--text); }
+
+    /* ── Coming soon ── */
+    .coming-soon { text-align: center; padding: 90px 40px; }
+    .coming-soon-icon { font-size: 30px; margin-bottom: 14px; opacity: 0.45; }
+    .coming-soon-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic; font-size: 26px; color: var(--muted); margin-bottom: 8px;
+    }
+    .coming-soon-sub { font-size: 12px; color: var(--muted); opacity: 0.6; }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════
+       SIDEBAR
+  ════════════════════════════════════════════════════ -->
+  <aside class="sidebar">
+
+    <div class="sb-brand">
+      <div class="sb-title">I'm HER.</div>
+      <div class="sb-sub">Personal Dashboard</div>
+    </div>
+
+    <div class="sb-datetime">
+      <div class="sb-day" id="sb-day"></div>
+      <div class="sb-date" id="sb-date"></div>
+      <div class="sb-time" id="sb-time"></div>
+    </div>
+
+    <div class="sb-weather" id="weather-widget">
+      <div class="sw-loading">Fetching weather…</div>
+    </div>
+
+    <div class="sb-divider"></div>
+
+    <nav class="sb-nav">
+
+      <div class="nav-group">
+        <div class="nav-group-label">self.care</div>
+        <div class="nav-item active" data-page="routines"><span class="nav-icon">☀️</span> Daily Routines</div>
+        <div class="nav-item" data-page="supplements"><span class="nav-icon">💊</span> Supplements</div>
+        <div class="nav-item" data-page="skincare"><span class="nav-icon">🌿</span> Skincare</div>
+        <div class="nav-item" data-page="services"><span class="nav-icon">✨</span> Service Providers</div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">do.better</div>
+        <div class="nav-item" data-page="todos"><span class="nav-icon">✓</span> To-Dos</div>
+        <div class="nav-item" data-page="goals"><span class="nav-icon">◎</span> Goals</div>
+        <div class="nav-item" data-page="workout"><span class="nav-icon">🤸</span> Full Workout Plan</div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">personal.stuff</div>
+        <div class="nav-item" data-page="tobuys"><span class="nav-icon">🛍</span> To-Buys</div>
+        <div class="nav-item" data-page="wishlist"><span class="nav-icon">🎁</span> Wishlist</div>
+        <div class="nav-item" data-page="style"><span class="nav-icon">👗</span> Style Archive</div>
+        <div class="nav-item" data-page="home"><span class="nav-icon">🏠</span> Home & House</div>
+        <div class="nav-item" data-page="chloe"><span class="nav-icon">🐾</span> Chloe</div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">enjoy.life</div>
+        <div class="nav-item" data-page="restaurants"><span class="nav-icon">🍽</span> Restaurants</div>
+        <div class="nav-item" data-page="activities"><span class="nav-icon">🌟</span> Activities</div>
+        <div class="nav-item" data-page="hobbies"><span class="nav-icon">🍷</span> Hobbies</div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">life admin</div>
+        <div class="nav-item" data-page="birthdays"><span class="nav-icon">🎂</span> Birthdays</div>
+        <div class="nav-item" data-page="wine"><span class="nav-icon">🍇</span> Wine Making</div>
+      </div>
+
+    </nav>
+
+    <!-- Single freestanding portrait at sidebar bottom -->
+    <div class="sb-portrait">
+      <img src="5.png" alt="">
+    </div>
+    <div class="sb-quote">"You are exactly where you're meant to be."</div>
+
+  </aside>
+
+
+  <!-- ═══════════════════════════════════════════════════
+       MAIN CONTENT
+  ════════════════════════════════════════════════════ -->
+  <main class="main">
+
+    <!-- ─── DAILY ROUTINES ──────────────────────────── -->
+    <div class="page active" id="page-routines">
+
+      <div class="page-accent"></div>
+
+      <!-- Header: title left, freestanding portrait right -->
+      <div class="page-top">
+        <div>
+          <div class="page-eyebrow">self.care</div>
+          <h1 class="page-title">Daily <em>Routines</em></h1>
+          <p class="page-subtitle">Your personalized rhythm — adjusted to today.</p>
+        </div>
+        <div class="header-portrait">
+          <img src="1.png" alt="">
+        </div>
+      </div>
+
+      <!-- MORNING ROUTINE -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-label">Morning Routine</div>
+          <div class="section-rule"></div>
+        </div>
+        <div class="card">
+          <ul class="checklist" id="morning-list"></ul>
+        </div>
+      </div>
+
+      <!-- WORKOUT + SUPPLEMENTS -->
+      <div class="grid-2">
+
+        <div class="section">
+          <div class="section-header">
+            <div class="section-label">Today's Workout</div>
+            <div class="section-rule"></div>
+          </div>
+          <div class="card" id="workout-card"></div>
+        </div>
+
+        <div class="section">
+          <div class="section-header">
+            <div class="section-label">Daily Supplements</div>
+            <div class="section-rule"></div>
+          </div>
+          <div class="card" id="supp-list"></div>
+        </div>
+
+      </div>
+
+      <!-- EVENING ROUTINE -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-label">Evening Routine</div>
+          <div class="section-rule"></div>
+        </div>
+        <div class="card">
+          <ul class="checklist" id="evening-list"></ul>
+        </div>
+      </div>
+
+      <!-- Freestanding closing image — bottom right -->
+      <div class="page-closing-art">
+        <img src="3.png" alt="">
+      </div>
+
+    </div>
+
+
+    <!-- ─── STUBS ─────────────────────────────────── -->
+    <div class="page" id="page-supplements">
+      <div class="page-accent"></div>
+      <div class="page-eyebrow">self.care</div>
+      <h1 class="page-title" style="margin-bottom:6px;">My <em>Supplements</em></h1>
+      <p class="page-subtitle" style="margin-bottom:28px;">Your current stack — all in one place.</p>
+      <div class="supp-grid" id="supp-database"></div>
+    </div>
+    <div class="page" id="page-skincare">
+      <div class="coming-soon"><div class="coming-soon-icon">🌿</div>
+        <div class="coming-soon-title">skincare</div>
+        <div class="coming-soon-sub">Coming soon.</div></div>
+    </div>
+    <div class="page" id="page-services">
+      <div class="coming-soon"><div class="coming-soon-icon">✨</div>
+        <div class="coming-soon-title">service providers</div>
+        <div class="coming-soon-sub">Coming soon.</div></div>
+    </div>
+    <div class="page" id="page-todos">
+      <div class="coming-soon"><div class="coming-soon-icon">✓</div>
+        <div class="coming-soon-title">to-dos</div>
+        <div class="coming-soon-sub">Coming soon.</div></div>
+    </div>
+    <div class="page" id="page-goals">
+      <div class="coming-soon"><div class="coming-soon-icon">◎</div>
+        <div class="coming-soon-title">goals</div>
+        <div class="coming-soon-sub">Coming soon.</div></div>
+    </div>
+    <div class="page" id="page-workout">
+      <div class="coming-soon"><div class="coming-soon-icon">🤸</div>
+        <div class="coming-soon-title">full workout plan</div>
+        <div class="coming-soon-sub">Coming soon.</div></div>
+    </div>
+    <div class="page" id="page-tobuys">
+      <div class="coming-soon"><div class="coming-soon-icon">🛍</div>
+        <div class="coming-soon-title">to-buys</div>
+        <div class="coming-soon-sub">Coming soon.</div></div>
+    </div>
+    <div class="page" id="page-wishlist">
+      <div class="coming-soon"><div class="coming-soon-icon">🎁</div>
+        <div class="coming-soon-title">wishlist</div>
+        <div class="coming-soon-sub">Coming soon.</div></div>
+    </div>
+    <div class="page" id="page-style">
+      <div class="coming-soon"><div class="coming-soon-icon">👗</div>
+        <div class="coming-soon-title">style archive</div>
+        <div class="coming-soon-sub">Coming soon.</div></div>
+    </div>
+    <div class="page" id="page-home">
+      <div class="coming-soon"><div class="coming-soon-icon">🏠</div>
+        <div class="coming-soon-title">home & house</div>
+        <div class="coming-soon-sub">Coming soon.</div></div>
+    </div>
+    <div class="page" id="page-chloe">
+      <div class="coming-soon"><div class="coming-soon-icon">🐾</div>
+        <div class="coming-soon-title">chloe</div>
+        <div class="coming-soon-sub">Coming soon.</div></div>
+    </div>
+    <div class="page" id="page-restaurants">
+      <div class="coming-soon"><div class="coming-soon-icon">🍽</div>
+        <div class="coming-soon-title">restaurants</div>
+        <div class="coming-soon-sub">Coming soon.</div></div>
+    </div>
+    <div class="page" id="page-activities">
+      <div class="coming-soon"><div class="coming-soon-icon">🌟</div>
+        <div class="coming-soon-title">activities</div>
+        <div class="coming-soon-sub">Coming soon.</div></div>
+    </div>
+    <div class="page" id="page-hobbies">
+      <div class="coming-soon"><div class="coming-soon-icon">🎨</div>
+        <div class="coming-soon-title">hobbies</div>
+        <div class="coming-soon-sub">Coming soon.</div></div>
+    </div>
+    <div class="page" id="page-birthdays">
+      <div class="coming-soon"><div class="coming-soon-icon">🎂</div>
+        <div class="coming-soon-title">birthdays</div>
+        <div class="coming-soon-sub">Coming soon.</div></div>
+    </div>
+    <div class="page" id="page-wine">
+      <div class="coming-soon"><div class="coming-soon-icon">🍇</div>
+        <div class="coming-soon-title">wine making</div>
+        <div class="coming-soon-sub">Coming soon.</div></div>
+    </div>
+
+  </main>
+
+
+  <script>
+    /* ── Nav ── */
+    document.querySelectorAll('.nav-item').forEach(function(el) {
+      el.addEventListener('click', function() {
+        document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+        document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+        el.classList.add('active');
+        document.getElementById('page-' + el.dataset.page).classList.add('active');
+      });
+    });
+
+    /* ── Clock & date ── */
+    var DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+    function pad(n) { return String(n).padStart(2,'0'); }
+
+    function tick() {
+      var now = new Date();
+      var h = now.getHours();
+      var m = pad(now.getMinutes());
+      var ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      document.getElementById('sb-time').textContent = h + ':' + m + ' ' + ampm;
+    }
+
+    (function() {
+      var now = new Date();
+      document.getElementById('sb-day').textContent  = DAYS[now.getDay()];
+      document.getElementById('sb-date').textContent = MONTHS[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
+    })();
+
+    tick();
+    setInterval(tick, 1000);
+
+    /* ── Weather ── */
+    var WMO = {
+      0:{d:'Clear skies',i:'☀️'}, 1:{d:'Mostly clear',i:'🌤️'}, 2:{d:'Partly cloudy',i:'⛅'},
+      3:{d:'Overcast',i:'☁️'}, 45:{d:'Foggy',i:'🌫️'}, 51:{d:'Light drizzle',i:'🌦️'},
+      53:{d:'Drizzle',i:'🌦️'}, 61:{d:'Light rain',i:'🌧️'}, 63:{d:'Rainy',i:'🌧️'},
+      65:{d:'Heavy rain',i:'🌧️'}, 80:{d:'Showers',i:'🌦️'}, 95:{d:'Thunderstorms',i:'⛈️'}
+    };
+    function wmo(c) { return WMO[c] || WMO[Math.floor(c/10)*10] || {d:'Mixed',i:'🌤️'}; }
+
+    function renderWeather(temp, code, hi, lo, city) {
+      var w = wmo(code);
+      document.getElementById('weather-widget').innerHTML =
+        '<div class="sw-top"><div class="sw-temp">' + Math.round(temp) + '°F</div><div class="sw-icon">' + w.i + '</div></div>' +
+        '<div class="sw-desc">' + w.d + '</div>' +
+        '<div class="sw-range">H: <b>' + Math.round(hi) + '°</b> &nbsp; L: <b>' + Math.round(lo) + '°</b></div>' +
+        (city ? '<div class="sw-city">' + city + '</div>' : '');
+    }
+
+    async function fetchWeather(lat, lon) {
+      try {
+        var r  = await fetch('https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lon + '&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&timezone=auto&forecast_days=1');
+        var d  = await r.json();
+        var city = '';
+        try {
+          var g  = await fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lon);
+          var gd = await g.json();
+          city = gd.address && (gd.address.city || gd.address.town || gd.address.village || '');
+          if (gd.address && gd.address.state_code) city += (city ? ', ' : '') + gd.address.state_code;
+        } catch(e) {}
+        renderWeather(d.current.temperature_2m, d.current.weather_code, d.daily.temperature_2m_max[0], d.daily.temperature_2m_min[0], city);
+      } catch(e) {
+        document.getElementById('weather-widget').innerHTML = '<div class="sw-loading">Weather unavailable</div>';
+      }
+    }
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        function(p) { fetchWeather(p.coords.latitude, p.coords.longitude); },
+        function()  { document.getElementById('weather-widget').innerHTML = '<div class="sw-loading">Allow location for weather</div>'; }
+      );
+    }
+
+    /* ── Routine data — update these with your actual routine ── */
+    var MORNING = [
+      {time:'6:00 AM', task:'Wake up'},
+      {time:'6:05 AM', task:'Meditation / Breathwork'},
+      {time:'6:30 AM', task:'Morning skincare routine'},
+      {time:'6:40 AM', task:'Get dressed'},
+      {time:'6:50 AM', task:'Make bed'},
+      {time:'7:00 AM', task:'Walk Chloe'},
+      {time:'7:30 AM', task:'Check email + calendar'},
+      {time:'8:00 AM', task:'Breakfast + morning supplements'},
+      {time:'8:30 AM', task:'Start your day'}
+    ];
+
+    var EVENING = [
+      {time:'4:30 PM', task:'Workout'},
+      {time:'5:30 PM', task:'Stretch'},
+      {time:'6:00 PM', task:'Shower'},
+      {time:'6:30 PM', task:'Dinner'},
+      {time:'7:00 PM', task:'Brush teeth + nighttime skincare'},
+      {time:'7:15 PM', task:'Honey to Cocoa work'},
+      {time:'9:30 PM', task:'Nighttime supplements'},
+      {time:'10:00 PM', task:'Bed'}
+    ];
+
+    var WORKOUTS = {
+      0: {type:'Cardio',          name:'Sunday Cardio',      details:['45 min run or outdoor walk','Keep it easy & enjoyable']},
+      1: {type:'Strength',        name:'Upper Body',         details:['45–60 min','Push + pull focus']},
+      2: {type:'Strength',        name:'Lower Body',         details:['45–60 min','Glutes + legs']},
+      3: {type:'Cardio + Core',   name:'Cardio & Core',      details:['30 min cardio','15 min core circuit']},
+      4: {type:'Strength',        name:'Full Body',          details:['45–60 min','Compound movements']},
+      5: {type:'Rest',            name:'Rest Day',           details:[], rest:true},
+      6: {type:'Active Recovery', name:'Yoga or Pilates',    details:['45 min','Stretch, breathe, reset']}
+    };
+
+    // ── Supplements — single source of truth for both pages ──
+    var SUPPLEMENTS = [
+      {
+        name:    'Liquid Morning Multivitamin + Hair Growth',
+        brand:   'MaryRuth Organics',
+        dosage:  '1 Tbsp (15 mL)',
+        timing:  'Morning',
+        purpose: 'Daily vitamins, biotin, hair & nail growth support',
+        img:     'supp-maryruth.png'
+      },
+      {
+        name:    'Norwegian Cod Liver Oil',
+        brand:   'Carlson Labs',
+        dosage:  '1 tsp',
+        timing:  'Morning',
+        purpose: 'Omega-3s (EPA/DHA), Vitamin A & D, heart and brain health',
+        img:     'supp-codliver.png'
+      },
+      {
+        name:    'Optimum Joint Support',
+        brand:   'Liquid Health',
+        dosage:  '1 fl oz (30 mL)',
+        timing:  'Morning',
+        purpose: 'Glucosamine, chondroitin & hyaluronic acid for joint mobility and flexibility',
+        img:     'supp-joint.png'
+      },
+      {
+        name:    'Longevity',
+        brand:   'Sunny Within',
+        dosage:  '2 capsules',
+        timing:  'Morning',
+        purpose: 'Anti-aging, cellular longevity and mitochondrial support',
+        img:     'supp-longevity.png'
+      },
+      {
+        name:    'Daytime HPA',
+        brand:   'Gaia Herbs',
+        dosage:  '2 capsules',
+        timing:  'Morning',
+        purpose: 'Adrenal support, cortisol balance and daytime stress resilience',
+        img:     'supp-hpa.png'
+      },
+      {
+        name:    'AdaptoSerenity',
+        brand:   'Progressive Nutracare',
+        dosage:  '2 capsules',
+        timing:  'Night',
+        purpose: 'Adaptogen blend for evening calm, stress relief and restful sleep',
+        img:     'supp-adapto.png'
+      }
+    ];
+
+    /* ── Render ── */
+    var CHK = '<svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+    function renderChecklist(id, items, prefix) {
+      var ul = document.getElementById(id);
+      ul.innerHTML = '';
+      items.forEach(function(item, i) {
+        var key  = prefix + '_' + i;
+        var done = localStorage.getItem(key) === '1';
+        var li   = document.createElement('li');
+        li.className = 'checklist-item' + (done ? ' done' : '');
+        li.innerHTML =
+          '<div class="check-box">' + CHK + '</div>' +
+          '<span class="item-text">' + item.task + '</span>' +
+          (item.time ? '<span class="item-time">' + item.time + '</span>' : '');
+        li.addEventListener('click', function() {
+          li.classList.toggle('done');
+          localStorage.setItem(key, li.classList.contains('done') ? '1' : '0');
+        });
+        ul.appendChild(li);
+      });
+    }
+
+    function renderWorkout() {
+      var w  = WORKOUTS[new Date().getDay()];
+      var el = document.getElementById('workout-card');
+      if (w.rest) {
+        el.innerHTML = '<div class="rest-card"><div class="rest-icon">🌿</div><div class="rest-text">Rest day. You\'ve earned it.</div></div>';
+      } else {
+        el.innerHTML =
+          '<div class="workout-badge">' + w.type + '</div>' +
+          '<div class="workout-name">' + w.name + '</div>' +
+          w.details.map(function(d) { return '<div class="workout-detail">' + d + '</div>'; }).join('');
+      }
+    }
+
+    // Routines page — compact view sourced from SUPPLEMENTS
+    function renderSupplements() {
+      document.getElementById('supp-list').innerHTML = SUPPLEMENTS.map(function(s) {
+        return '<div class="supp-item">' +
+          '<div class="supp-dot"></div>' +
+          '<div class="supp-name">' + s.name + '</div>' +
+          '<div class="supp-timing">' + s.timing + '</div>' +
+          '</div>';
+      }).join('');
+    }
+
+    // Supplements database page — full detail cards
+    function renderSuppDatabase() {
+      var el = document.getElementById('supp-database');
+      if (!el) return;
+      el.innerHTML = SUPPLEMENTS.map(function(s) {
+        var timingClass = s.timing === 'Morning' ? 'timing-morning' : s.timing === 'Night' ? 'timing-night' : 'timing-both';
+        var imgHtml = '<img class="supp-card-img" src="' + s.img + '" alt="' + s.name + '" onerror="this.outerHTML=\'<div class=supp-card-img-placeholder>💊</div>\'">';
+        return '<div class="supp-card">' +
+          imgHtml +
+          '<div class="supp-card-body">' +
+            '<span class="supp-card-timing ' + timingClass + '">' + s.timing + '</span>' +
+            '<div class="supp-card-name">' + s.name + '</div>' +
+            '<div class="supp-card-brand">' + s.brand + '</div>' +
+            '<div class="supp-card-divider"></div>' +
+            '<div class="supp-card-meta">' +
+              '<div class="supp-card-row"><span class="supp-card-row-label">Dosage</span><span class="supp-card-row-val">' + s.dosage + '</span></div>' +
+              '<div class="supp-card-row"><span class="supp-card-row-label">For</span><span class="supp-card-row-val">' + s.purpose + '</span></div>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    /* Daily reset */
+    (function() {
+      var today = new Date().toDateString();
+      if (localStorage.getItem('_date') !== today) {
+        Object.keys(localStorage)
+          .filter(function(k) { return k.startsWith('morning_') || k.startsWith('evening_'); })
+          .forEach(function(k) { localStorage.removeItem(k); });
+        localStorage.setItem('_date', today);
+      }
+    })();
+
+    renderChecklist('morning-list', MORNING, 'morning');
+    renderChecklist('evening-list', EVENING, 'evening');
+    renderWorkout();
+    renderSupplements();
+    renderSuppDatabase();
+  </script>
+</body>
+</html>
