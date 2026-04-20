@@ -530,6 +530,29 @@
     }
     .bday-gift-input:focus { border-color: var(--olive); }
 
+    /* ── Wine Making ── */
+    .wine-list { display:flex; flex-direction:column; gap:14px; }
+    .wine-card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px 20px; }
+    .wine-card-top { display:flex; gap:14px; align-items:flex-start; }
+    .wine-photo { width:80px; height:80px; object-fit:cover; border-radius:8px; flex-shrink:0; }
+    .wine-photo-placeholder { width:80px; height:80px; background:var(--linen); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0; }
+    .wine-card-body { flex:1; min-width:0; }
+    .wine-card-header { display:flex; align-items:center; gap:10px; margin-bottom:5px; flex-wrap:wrap; }
+    .wine-card-name { font-family:'Cormorant Garamond',serif; font-size:19px; font-weight:500; color:var(--br-dark); }
+    .wine-status-badge { font-size:9px; letter-spacing:0.12em; text-transform:uppercase; font-weight:600; padding:2px 8px; border-radius:10px; }
+    .wine-active    { background:rgba(184,107,78,0.15); color:var(--terra); }
+    .wine-planned   { background:rgba(155,133,110,0.12); color:var(--muted); }
+    .wine-completed { background:rgba(123,123,80,0.12); color:var(--olive); }
+    .wine-card-meta { font-size:11.5px; color:var(--muted); margin-bottom:3px; }
+    .wine-check-alert { font-size:11.5px; color:var(--terra); font-weight:500; margin-bottom:3px; }
+    .wine-gravity { font-size:12px; color:var(--muted); margin:6px 0; }
+    .wine-gravity b { color:var(--text); font-weight:500; }
+    .wine-recipe-btn { background:none; border:none; cursor:pointer; font-size:11.5px; color:var(--olive); font-family:'DM Sans',sans-serif; padding:4px 0; margin-top:4px; display:block; }
+    .wine-recipe-btn:hover { text-decoration:underline; }
+    .wine-recipe-body { margin-top:8px; font-size:12.5px; color:var(--text); line-height:1.6; background:var(--linen); border-radius:7px; padding:12px 14px; white-space:pre-wrap; }
+    .wine-file-label { font-size:12px; color:var(--muted); display:flex; align-items:center; gap:8px; cursor:pointer; flex:1; }
+    .wine-file-label input[type=file] { font-size:11px; color:var(--muted); }
+
     /* ── Coming soon ── */
 
     .coming-soon { text-align: center; padding: 90px 40px; }
@@ -845,9 +868,40 @@
       <div class="bday-list" id="bday-list"></div>
     </div>
     <div class="page" id="page-wine">
-      <div class="coming-soon"><div class="coming-soon-icon">🍇</div>
-        <div class="coming-soon-title">wine making</div>
-        <div class="coming-soon-sub">Coming soon.</div></div>
+      <div class="page-accent"></div>
+      <div class="page-eyebrow">enjoy.life</div>
+      <h1 class="page-title" style="margin-bottom:6px;">Wine <em>Making</em></h1>
+      <p class="page-subtitle" style="margin-bottom:24px;">Your batches, recipes, and tasting notes — all in one place.</p>
+      <div class="card" style="margin-bottom:20px;padding:18px 20px;">
+        <div class="todo-form-row">
+          <input type="text" class="todo-input" id="wine-name" placeholder="Wine name (e.g. Blackberry Merlot)">
+          <select class="todo-select" id="wine-status">
+            <option value="active">Active</option>
+            <option value="planned">Planned</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+        <div class="todo-form-row">
+          <input type="date" class="todo-date-input" id="wine-started" title="Date started">
+          <input type="date" class="todo-date-input" id="wine-check" title="Next check date">
+          <input type="text" class="todo-select" id="wine-og" placeholder="OG e.g. 1.090" style="width:130px;">
+          <input type="text" class="todo-select" id="wine-fg" placeholder="FG e.g. 0.998" style="width:130px;">
+        </div>
+        <div class="todo-form-row">
+          <textarea class="todo-input" id="wine-recipe" placeholder="Recipe &amp; notes..." rows="3" style="resize:vertical;min-height:80px;"></textarea>
+        </div>
+        <div class="todo-form-row" style="align-items:center;">
+          <label class="wine-file-label"><span>Photo:</span><input type="file" id="wine-photo" accept="image/*"></label>
+          <button class="todo-add-btn" id="wine-add-btn">+ Add Wine</button>
+        </div>
+      </div>
+      <div class="todo-filters">
+        <button class="filter-tab active" data-wfilter="all">All</button>
+        <button class="filter-tab" data-wfilter="active">Active</button>
+        <button class="filter-tab" data-wfilter="planned">Planned</button>
+        <button class="filter-tab" data-wfilter="completed">Completed</button>
+      </div>
+      <div class="wine-list" id="wine-list"></div>
     </div>
 
   </main>
@@ -1096,12 +1150,6 @@
         localStorage.setItem('_date', today);
       }
     })();
-
-    renderChecklist('morning-list', MORNING, 'morning');
-    renderChecklist('evening-list', EVENING, 'evening');
-    renderWorkout();
-    renderSupplements();
-    renderSuppDatabase();
 
     /* ════ TO-DO SYSTEM ════ */
     var TODOS = JSON.parse(localStorage.getItem('_todos') || '[]');
@@ -1437,8 +1485,135 @@
       if (nameIn) { nameIn.onkeydown = function(e) { if (e.key==='Enter') addBirthday(); }; }
     }
 
+
+    /* WINE MAKING */
+    var WINES = JSON.parse(localStorage.getItem('_wines') || '[]');
+    function saveWines() { localStorage.setItem('_wines', JSON.stringify(WINES)); }
+    var currentWineFilter = 'all';
+
+    function calcABV(og, fg) {
+      var o = parseFloat(og), f = parseFloat(fg);
+      if (isNaN(o) || isNaN(f) || o <= f) return null;
+      return ((o - f) * 131.25).toFixed(1);
+    }
+
+    function doAddWine(photoData) {
+      var name = (document.getElementById('wine-name').value || '').trim();
+      if (!name) return;
+      WINES.push({
+        id: Date.now(), name: name,
+        status:    document.getElementById('wine-status').value,
+        started:   document.getElementById('wine-started').value || null,
+        checkDate: document.getElementById('wine-check').value || null,
+        og:        document.getElementById('wine-og').value.trim(),
+        fg:        document.getElementById('wine-fg').value.trim(),
+        recipe:    document.getElementById('wine-recipe').value.trim(),
+        photo:     photoData || null
+      });
+      saveWines();
+      ['wine-name','wine-started','wine-check','wine-og','wine-fg','wine-recipe'].forEach(function(id) {
+        var el = document.getElementById(id); if (el) el.value = '';
+      });
+      document.getElementById('wine-photo').value = '';
+      renderWinePage();
+    }
+
+    function addWine() {
+      var name = (document.getElementById('wine-name').value || '').trim();
+      if (!name) { document.getElementById('wine-name').focus(); return; }
+      var file = document.getElementById('wine-photo').files[0];
+      if (file) {
+        var reader = new FileReader();
+        reader.onload = function(e) { doAddWine(e.target.result); };
+        reader.readAsDataURL(file);
+      } else { doAddWine(null); }
+    }
+
+    function deleteWine(id) {
+      WINES = WINES.filter(function(w) { return w.id !== id; });
+      saveWines(); renderWinePage();
+    }
+
+    function toggleRecipe(id) {
+      var el = document.getElementById('recipe-' + id);
+      if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function renderWinePage() {
+      var el = document.getElementById('wine-list');
+      if (!el) return;
+      var list = WINES.filter(function(w) {
+        return currentWineFilter === 'all' || w.status === currentWineFilter;
+      });
+      if (!list.length) {
+        el.innerHTML = '<div class="todo-empty">No wines here yet &mdash; add your first batch above.</div>';
+      } else {
+        el.innerHTML = list.map(function(w) {
+          var abv    = calcABV(w.og, w.fg);
+          var sLabel = { active:'Active', planned:'Planned', completed:'Completed' }[w.status] || w.status;
+          var sCls   = { active:'wine-active', planned:'wine-planned', completed:'wine-completed' }[w.status] || '';
+          var photoHtml = w.photo
+            ? '<img src="' + w.photo + '" class="wine-photo" alt="' + escHtml(w.name) + '">'
+            : '<div class="wine-photo-placeholder">&#127863;</div>';
+          var checkHtml = '';
+          if (w.checkDate) {
+            var dc = Math.round((new Date(w.checkDate) - new Date(todayStr())) / 86400000);
+            var checkTxt = dc < 0 ? 'Check overdue! (' + fmtDate(w.checkDate) + ')'
+                         : dc === 0 ? 'Check today!'
+                         : dc === 1 ? 'Check tomorrow'
+                         : 'Check on ' + fmtDate(w.checkDate);
+            var checkCls = dc <= 1 ? 'wine-check-alert' : 'wine-card-meta';
+            checkHtml = '<div class="' + checkCls + '">' + checkTxt + '</div>';
+          }
+          var gravHtml = (w.og || w.fg || abv)
+            ? '<div class="wine-gravity">' +
+              (w.og ? 'OG: <b>' + escHtml(w.og) + '</b>' : '') +
+              (w.og && w.fg ? ' &rarr; ' : '') +
+              (w.fg ? 'FG: <b>' + escHtml(w.fg) + '</b>' : '') +
+              (abv  ? ' &nbsp;&bull;&nbsp; ABV: <b>' + abv + '%</b>' : '') +
+              '</div>' : '';
+          var recipeHtml = w.recipe
+            ? '<button class="wine-recipe-btn" onclick="toggleRecipe(' + w.id + ')">Recipe &amp; notes &#9660;</button>' +
+              '<div class="wine-recipe-body" id="recipe-' + w.id + '" style="display:none;">' + escHtml(w.recipe) + '</div>'
+            : '';
+          return '<div class="wine-card"><div class="wine-card-top">' +
+            photoHtml +
+            '<div class="wine-card-body">' +
+              '<div class="wine-card-header">' +
+                '<span class="wine-card-name">' + escHtml(w.name) + '</span>' +
+                '<span class="wine-status-badge ' + sCls + '">' + sLabel + '</span>' +
+              '</div>' +
+              (w.started ? '<div class="wine-card-meta">Started ' + fmtDate(w.started) + '</div>' : '') +
+              checkHtml + gravHtml + recipeHtml +
+            '</div>' +
+            '<button class="todo-delete" onclick="deleteWine(' + w.id + ')">&#x2715;</button>' +
+          '</div></div>';
+        }).join('');
+      }
+      var addBtn = document.getElementById('wine-add-btn');
+      if (addBtn) addBtn.onclick = addWine;
+      document.querySelectorAll('[data-wfilter]').forEach(function(btn) {
+        btn.onclick = function() {
+          document.querySelectorAll('[data-wfilter]').forEach(function(b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          currentWineFilter = btn.dataset.wfilter;
+          renderWinePage();
+        };
+      });
+    }
+
+    renderWinePage();
+
+    renderChecklist('morning-list', MORNING, 'morning');
+    renderChecklist('evening-list', EVENING, 'evening');
+    renderWorkout();
+    renderSupplements();
+    renderSuppDatabase();
+    renderTodoList();
+    renderTodayPreview();
     renderBirthdayPreview();
     renderBirthdayPage();
+    renderWinePage();
   </script>
 </body>
 </html>
