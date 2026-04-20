@@ -1518,14 +1518,30 @@
       renderWinePage();
     }
 
+    function compressAndAdd(file, callback) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var img = new Image();
+        img.onload = function() {
+          var MAX = 600;
+          var w = img.width, h = img.height;
+          if (w > MAX || h > MAX) { var ratio = Math.min(MAX/w, MAX/h); w = Math.round(w*ratio); h = Math.round(h*ratio); }
+          var canvas = document.createElement("canvas");
+          canvas.width = w; canvas.height = h;
+          canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+          callback(canvas.toDataURL("image/jpeg", 0.7));
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
     function addWine() {
       var name = (document.getElementById('wine-name').value || '').trim();
       if (!name) { document.getElementById('wine-name').focus(); return; }
       var file = document.getElementById('wine-photo').files[0];
       if (file) {
-        var reader = new FileReader();
-        reader.onload = function(e) { doAddWine(e.target.result); };
-        reader.readAsDataURL(file);
+        compressAndAdd(file, function(compressed) { doAddWine(compressed); });
       } else { doAddWine(null); }
     }
 
