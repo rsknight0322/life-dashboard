@@ -817,6 +817,31 @@
       <div class="page-eyebrow">life admin</div>
       <h1 class="page-title" style="margin-bottom:6px;">Birth<em>days</em></h1>
       <p class="page-subtitle" style="margin-bottom:28px;">The people you love — never forget a date.</p>
+      <!-- Add birthday form -->
+      <div class="card" style="margin-bottom:20px;padding:18px 20px;">
+        <div class="todo-form-row">
+          <input type="text" class="todo-input" id="bday-name" placeholder="Name">
+          <input type="text" class="todo-input" id="bday-rel" placeholder="Relationship" list="bday-rel-list" style="max-width:180px;">
+          <datalist id="bday-rel-list">
+            <option value="Mom"><option value="Dad"><option value="Sister"><option value="Brother">
+            <option value="Friend"><option value="Cousin"><option value="Aunt"><option value="Uncle">
+            <option value="Grandma"><option value="Grandpa"><option value="Niece"><option value="Nephew"><option value="Dog">
+          </datalist>
+        </div>
+        <div class="todo-form-row">
+          <select class="todo-select" id="bday-month">
+            <option value="">Month</option>
+            <option value="1">January</option><option value="2">February</option>
+            <option value="3">March</option><option value="4">April</option>
+            <option value="5">May</option><option value="6">June</option>
+            <option value="7">July</option><option value="8">August</option>
+            <option value="9">September</option><option value="10">October</option>
+            <option value="11">November</option><option value="12">December</option>
+          </select>
+          <input type="number" class="todo-select" id="bday-day" placeholder="Day" min="1" max="31" style="width:80px;">
+          <button class="todo-add-btn" id="bday-add-btn">+ Add</button>
+        </div>
+      </div>
       <div class="bday-list" id="bday-list"></div>
     </div>
     <div class="page" id="page-wine">
@@ -1284,7 +1309,8 @@
 
     /* ════ BIRTHDAYS ════ */
     var BMONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    var BIRTHDAYS = [
+
+    var BDAY_DEFAULTS = [
       { name:'Karmien',      relation:'Cousin',  month:1,  day:3  },
       { name:'Mom',          relation:'Mom',     month:1,  day:5  },
       { name:'Kiki',         relation:'Friend',  month:1,  day:23 },
@@ -1308,6 +1334,11 @@
       { name:'Jameka',       relation:'Friend',  month:12, day:8  }
     ];
 
+    var BIRTHDAYS = JSON.parse(localStorage.getItem('_birthdays') || 'null');
+    if (!BIRTHDAYS) { BIRTHDAYS = BDAY_DEFAULTS.slice(); saveBirthdays(); }
+
+    function saveBirthdays() { localStorage.setItem('_birthdays', JSON.stringify(BIRTHDAYS)); }
+
     function daysUntil(month, day) {
       var now   = new Date();
       var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -1317,6 +1348,29 @@
     }
 
     function fmtBday(month, day) { return BMONTHS[month-1] + ' ' + day; }
+
+    function addBirthday() {
+      var name = (document.getElementById('bday-name').value || '').trim();
+      var rel  = (document.getElementById('bday-rel').value  || '').trim() || 'Friend';
+      var mon  = parseInt(document.getElementById('bday-month').value);
+      var day  = parseInt(document.getElementById('bday-day').value);
+      if (!name || !mon || !day || day < 1 || day > 31) return;
+      BIRTHDAYS.push({ name:name, relation:rel, month:mon, day:day });
+      saveBirthdays();
+      document.getElementById('bday-name').value  = '';
+      document.getElementById('bday-rel').value   = '';
+      document.getElementById('bday-month').value = '';
+      document.getElementById('bday-day').value   = '';
+      renderBirthdayPage();
+      renderBirthdayPreview();
+    }
+
+    function deleteBirthday(month, day, name) {
+      BIRTHDAYS = BIRTHDAYS.filter(function(b) { return !(b.month===month && b.day===day && b.name===name); });
+      saveBirthdays();
+      renderBirthdayPage();
+      renderBirthdayPreview();
+    }
 
     function renderBirthdayPreview() {
       var el = document.getElementById('birthday-preview');
@@ -1360,9 +1414,12 @@
                 '<span class="bday-card-date">' + fmtBday(b.month, b.day) + '</span>' +
               '</div>' +
             '</div>' +
-            '<div class="bday-card-right">' +
-              '<div class="bday-days-num' + numCls + '">' + numLabel + '</div>' +
-              '<div class="bday-days-sub">until birthday</div>' +
+            '<div style="display:flex;align-items:flex-start;gap:12px;">' +
+              '<div class="bday-card-right">' +
+                '<div class="bday-days-num' + numCls + '">' + numLabel + '</div>' +
+                '<div class="bday-days-sub">until birthday</div>' +
+              '</div>' +
+              '<button class="todo-delete" onclick="deleteBirthday(' + b.month + ',' + b.day + ',\'' + b.name.replace("'","\\'") + '\')">\u2715</button>' +
             '</div>' +
           '</div>' +
           '<div class="bday-gift-label">Gift ideas</div>' +
@@ -1374,15 +1431,12 @@
         ta.addEventListener('input', function() { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; });
         ta.addEventListener('blur',  function() { localStorage.setItem('_gift_' + ta.dataset.name, ta.value); });
       });
+      var addBtn = document.getElementById('bday-add-btn');
+      if (addBtn) { addBtn.onclick = addBirthday; }
+      var nameIn = document.getElementById('bday-name');
+      if (nameIn) { nameIn.onkeydown = function(e) { if (e.key==='Enter') addBirthday(); }; }
     }
 
-    renderChecklist('morning-list', MORNING, 'morning');
-    renderChecklist('evening-list', EVENING, 'evening');
-    renderWorkout();
-    renderSupplements();
-    renderSuppDatabase();
-    renderTodoList();
-    renderTodayPreview();
     renderBirthdayPreview();
     renderBirthdayPage();
   </script>
