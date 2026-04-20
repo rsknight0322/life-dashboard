@@ -1555,6 +1555,51 @@
       if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
     }
 
+    function editWine(id) {
+      var w = WINES.find(function(x) { return x.id===id; });
+      var card = document.getElementById('wcard-' + id);
+      if (!w || !card) return;
+      card.innerHTML =
+        '<div style="display:flex;flex-direction:column;gap:10px;">' +
+        '<div class="todo-form-row">' +
+          '<input class="todo-input" id="we-name-' + id + '" value="' + escHtml(w.name) + '" placeholder="Wine name">' +
+          '<select class="todo-select" id="we-status-' + id + '">' +
+            '<option value="active"' + (w.status==='active'?' selected':'') + '>Active</option>' +
+            '<option value="planned"' + (w.status==='planned'?' selected':'') + '>Planned</option>' +
+            '<option value="completed"' + (w.status==='completed'?' selected':'') + '>Completed</option>' +
+          '</select>' +
+        '</div>' +
+        '<div class="todo-form-row">' +
+          '<input type="date" class="todo-date-input" id="we-started-' + id + '" value="' + (w.started||'') + '" title="Date started">' +
+          '<input type="date" class="todo-date-input" id="we-check-' + id + '" value="' + (w.checkDate||'') + '" title="Check date">' +
+          '<input class="todo-select" id="we-og-' + id + '" value="' + escHtml(w.og||'') + '" placeholder="OG" style="width:100px;">' +
+          '<input class="todo-select" id="we-fg-' + id + '" value="' + escHtml(w.fg||'') + '" placeholder="FG" style="width:100px;">' +
+        '</div>' +
+        '<textarea class="todo-input" id="we-recipe-' + id + '" rows="4" placeholder="Recipe & notes..." style="resize:vertical;min-height:80px;">' + escHtml(w.recipe||'') + '</textarea>' +
+        '<div class="todo-form-row" style="align-items:center;">' +
+          '<label class="wine-file-label"><span>New photo:</span><input type="file" id="we-photo-' + id + '" accept="image/*"></label>' +
+          '<button class="todo-add-btn" onclick="saveWineEdit(' + id + ')">Save</button>' +
+          '<button class="view-all-btn" onclick="renderWinePage()" style="margin-left:8px;">Cancel</button>' +
+        '</div>' +
+        '</div>';
+    }
+
+    function saveWineEdit(id) {
+      var w = WINES.find(function(x) { return x.id===id; });
+      if (!w) return;
+      w.name      = document.getElementById('we-name-' + id).value.trim() || w.name;
+      w.status    = document.getElementById('we-status-' + id).value;
+      w.started   = document.getElementById('we-started-' + id).value || null;
+      w.checkDate = document.getElementById('we-check-' + id).value || null;
+      w.og        = document.getElementById('we-og-' + id).value.trim();
+      w.fg        = document.getElementById('we-fg-' + id).value.trim();
+      w.recipe    = document.getElementById('we-recipe-' + id).value.trim();
+      var file = document.getElementById('we-photo-' + id).files[0];
+      if (file) {
+        compressAndAdd(file, function(compressed) { w.photo = compressed; saveWines(); renderWinePage(); });
+      } else { saveWines(); renderWinePage(); }
+    }
+
     function renderWinePage() {
       var el = document.getElementById('wine-list');
       if (!el) return;
@@ -1578,8 +1623,7 @@
                          : dc === 0 ? 'Check today!'
                          : dc === 1 ? 'Check tomorrow'
                          : 'Check on ' + fmtDate(w.checkDate);
-            var checkCls = dc <= 1 ? 'wine-check-alert' : 'wine-card-meta';
-            checkHtml = '<div class="' + checkCls + '">' + checkTxt + '</div>';
+            checkHtml = '<div class="' + (dc <= 1 ? 'wine-check-alert' : 'wine-card-meta') + '">' + checkTxt + '</div>';
           }
           var gravHtml = (w.og || w.fg || abv)
             ? '<div class="wine-gravity">' +
@@ -1592,7 +1636,8 @@
             ? '<button class="wine-recipe-btn" onclick="toggleRecipe(' + w.id + ')">Recipe &amp; notes &#9660;</button>' +
               '<div class="wine-recipe-body" id="recipe-' + w.id + '" style="display:none;">' + escHtml(w.recipe) + '</div>'
             : '';
-          return '<div class="wine-card"><div class="wine-card-top">' +
+          return '<div class="wine-card" id="wcard-' + w.id + '">' +
+            '<div class="wine-card-top">' +
             photoHtml +
             '<div class="wine-card-body">' +
               '<div class="wine-card-header">' +
@@ -1602,8 +1647,11 @@
               (w.started ? '<div class="wine-card-meta">Started ' + fmtDate(w.started) + '</div>' : '') +
               checkHtml + gravHtml + recipeHtml +
             '</div>' +
-            '<button class="todo-delete" onclick="deleteWine(' + w.id + ')">&#x2715;</button>' +
-          '</div></div>';
+            '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">' +
+              '<button class="todo-delete" onclick="deleteWine(' + w.id + ')">&#x2715;</button>' +
+              '<button class="view-all-btn" onclick="editWine(' + w.id + ')">Edit</button>' +
+            '</div>' +
+            '</div></div>';
         }).join('');
       }
       var addBtn = document.getElementById('wine-add-btn');
@@ -1629,7 +1677,6 @@
     renderTodayPreview();
     renderBirthdayPreview();
     renderBirthdayPage();
-    renderWinePage();
   </script>
 </body>
 </html>
