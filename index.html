@@ -479,6 +479,13 @@
     .dot-high { background: var(--terra); }
     .dot-medium { background: var(--olive); }
     .dot-low { background: var(--muted); opacity: 0.45; }
+    .today-todo-check {
+      width: 15px; height: 15px; min-width: 15px;
+      border: 1.5px solid var(--border); border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      background: white; cursor: pointer; transition: all 0.14s; flex-shrink: 0;
+    }
+    .today-todo-check:hover { border-color: var(--olive); }
     .today-todo-text { font-size: 13px; color: var(--text); flex: 1; }
     .today-todo-due { font-size: 10.5px; white-space: nowrap; }
     .view-all-btn {
@@ -1240,6 +1247,9 @@
       el.innerHTML = shown.map(function(t) {
         var dl = dueLabelClass(t.due);
         return '<div class="today-todo-item">' +
+          '<div class="today-todo-check" onclick="toggleTodo(' + t.id + ')" title="Mark complete">' +
+            '<svg width="9" height="9" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+          '</div>' +
           '<div class="today-todo-dot dot-' + (t.priority||'medium') + '"></div>' +
           '<div class="today-todo-text">' + escHtml(t.text) + '</div>' +
           (dl.label ? '<div class="today-todo-due ' + dl.cls + '">' + dl.label + '</div>' : '') +
