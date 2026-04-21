@@ -1223,7 +1223,7 @@
         var dl = dueLabelClass(t.due);
         var prLabel = { high:'High', medium:'Medium', low:'Low' }[t.priority] || 'Medium';
         return '<div class="todo-item' + (t.done?' done-item':'') + '">' +
-          '<div class="todo-check" onclick="toggleTodo(' + t.id + ')">' + (t.done ? CHK : '') + '</div>' +
+          '<div class="todo-check" onclick="toggleTodo(\'' + t.id + '\')">' + (t.done ? CHK : '') + '</div>' +
           '<div class="todo-body">' +
             '<div class="todo-text">' + escHtml(t.text) + '</div>' +
             '<div class="todo-meta">' +
@@ -1232,7 +1232,7 @@
               (dl.label ? '<span class="due-badge ' + dl.cls + '">' + dl.label + '</span>' : '') +
             '</div>' +
           '</div>' +
-          '<button class="todo-delete" onclick="deleteTodo(' + t.id + ')">\u2715</button>' +
+          '<button class="todo-delete" onclick="deleteTodo(\'' + t.id + '\')">\u2715</button>' +
         '</div>';
       }).join('');
     }
@@ -1247,7 +1247,7 @@
       el.innerHTML = shown.map(function(t) {
         var dl = dueLabelClass(t.due);
         return '<div class="today-todo-item">' +
-          '<div class="today-todo-check" onclick="toggleTodo(' + t.id + ')" title="Mark complete">' +
+          '<div class="today-todo-check" onclick="toggleTodo(\'' + t.id + '\')" title="Mark complete">' +
             '<svg width="9" height="9" viewBox="0 0 10 10" style="display:none"><polyline points="1.5,5 4,7.5 8.5,2" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
           '</div>' +
           '<div class="today-todo-dot dot-' + (t.priority||'medium') + '"></div>' +
@@ -1257,19 +1257,19 @@
       }).join('') + (more > 0 ? '<div style="text-align:center;padding:10px 0 4px;font-size:11px;color:var(--muted);">+ ' + more + ' more task' + (more>1?'s':'') + '</div>' : '');
     }
     function toggleTodo(id) {
-      var t = TODOS.find(function(x) { return x.id===id; });
+      var t = TODOS.find(function(x) { return String(x.id)===String(id); });
       if (!t) return;
       t.done = !t.done;
       if (t.fromSheet && t.done) {
         _sheetDone.push(String(id)); saveSheetDone();
-        TODOS = TODOS.filter(function(x) { return x.id!==id; });
+        TODOS = TODOS.filter(function(x) { return String(x.id)!==String(id); });
       }
       saveTodos(); renderTodoList(); renderTodayPreview();
     }
     function deleteTodo(id) {
-      var t = TODOS.find(function(x) { return x.id===id; });
+      var t = TODOS.find(function(x) { return String(x.id)===String(id); });
       if (t && t.fromSheet) { _sheetDone.push(String(id)); saveSheetDone(); }
-      TODOS = TODOS.filter(function(x) { return x.id!==id; });
+      TODOS = TODOS.filter(function(x) { return String(x.id)!==String(id); });
       saveTodos(); renderTodoList(); renderTodayPreview();
     }
     function addTodo() {
