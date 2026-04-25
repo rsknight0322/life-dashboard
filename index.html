@@ -1775,6 +1775,320 @@
     renderBirthdayPage();
     initMealFilterTabs();
     renderMealPage();
+
+    /* ════ MEAL PLANNER ════ */
+    var RECIPES = JSON.parse(localStorage.getItem('_recipes') || '[]');
+    var GROCERY  = JSON.parse(localStorage.getItem('_grocery')  || '[]');
+    var _rfIngredients = [];
+    var _rfLabel = 'dinner';
+    var _rfPhotoData = null;
+    var _mealFilter = 'all';
+
+    function saveRecipes() { localStorage.setItem('_recipes', JSON.stringify(RECIPES)); }
+    function saveGrocery()  { localStorage.setItem('_grocery',  JSON.stringify(GROCERY)); }
+
+    function escHtmlM(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+    var MEAL_LABELS = { breakfast:'Breakfast', lunch:'Lunch', dinner:'Dinner', dessert:'Dessert', drink:'Drink' };
+    function mealBadge(label) {
+      return '<span class="meal-badge badge-' + (label||'dinner') + '">' + (MEAL_LABELS[label] || label) + '</span>';
+    }
+
+    async function importRecipeUrl() {
+      var url = document.getElementById('recipe-url-input').value.trim();
+      if (!url) return;
+      var status = document.getElementById('recipe-import-status');
+      status.className = 'recipe-import-status';
+      status.textContent = 'Fetching recipe...';
+      try {
+        var proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(url);
+        var res = await fetch(proxyUrl);
+        if (!res.ok) throw new Error('Could not fetch page');
+        var html = await res.text();
+        var recipe = extractJsonLdRecipe(html);
+        if (!recipe) throw new Error('No recipe data found on this page. Try adding manually.');
+        recipe.sourceUrl = url;
+        recipe.id = Date.now();
+        RECIPES.push(recipe);
+        saveRecipes();
+        renderMealPage();
+        document.getElementById('recipe-url-input').value = '';
+        status.className = 'recipe-import-status success';
+        status.textContent = 'Imported: ' + recipe.name;
+        setTimeout(function() { status.textContent = ''; }, 3000);
+      } catch(e) {
+        status.className = 'recipe-import-status error';
+        status.textContent = e.message || 'Import failed. Try adding manually.';
+      }
+    }
+
+    function extractJsonLdRecipe(html) {
+      var re = /<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
+      var m;
+      while ((m = re.exec(html)) !== null) {
+        try {
+          var data = JSON.parse(m[1]);
+          var nodes = Array.isArray(data) ? data : (data['@graph'] ? data['@graph'] : [data]);
+          for (var j = 0; j < nodes.length; j++) {
+            var n = nodes[j];
+            var t = n && n['@type'];
+            if (t === 'Recipe' || (Array.isArray(t) && t.indexOf('Recipe') !== -1)) {
+              var ingr = n.recipeIngredient || n.ingredients || [];
+              var instructions = '';
+              if (typeof n.recipeInstructions === 'string') {
+                instructions = n.recipeInstructions;
+              } else if (Array.isArray(n.recipeInstructions)) {
+                instructions = n.recipeInstructions.map(function(s, idx) {
+                  if (typeof s === 'string') return (idx+1) + '. ' + s;
+                  return s.text ? (idx+1) + '. ' + s.text : '';
+                }).filter(Boolean).join('\n');
+              }
+              var photo = '';
+              if (n.image) {
+                if (typeof n.image === 'string') photo = n.image;
+                else if (Array.isArray(n.image)) photo = typeof n.image[0] === 'string' ? n.image[0] : (n.image[0] && n.image[0].url ? n.image[0].url : '');
+                else if (n.image.url) photo = n.image.url;
+              }
+              return { name: n.name || 'Imported Recipe', label: guessLabel(n), ingredients: ingr, instructions: instructions, photo: photo, notes: '' };
+            }
+          }
+        } catch(e) {}
+      }
+      return null;
+    }
+
+    function guessLabel(n) {
+      var cats = ((n.recipeCategory || '') + ' ' + (n.recipeCuisine || '')).toLowerCase();
+      if (/breakfast|brunch|morning|pancake|waffle|oat/.test(cats)) return 'breakfast';
+      if (/dessert|cake|cookie|sweet|chocolate|pie/.test(cats)) return 'dessert';
+      if (/drink|cocktail|smoothie|juice|beverage|coffee|tea/.test(cats)) return 'drink';
+      if (/lunch|sandwich|salad|soup|wrap/.test(cats)) return 'lunch';
+      return 'dinner';
+    }
+
+    function toggleManualForm() {
+      var form = document.getElementById('manual-recipe-form');
+      var btn  = document.getElementById('manual-toggle-btn');
+      var isHidden = form.style.display === 'none' || form.style.display === '';
+      form.style.display = isHidden ? 'block' : 'none';
+      btn.textContent = isHidden ? 'Cancel' : '+ Add manually';
+      if (isHidden) {
+        _rfIngredients = []; _rfLabel = 'dinner'; _rfPhotoData = null;
+        renderRfIngredients(); updateLabelButtons();
+      }
+    }
+
+    function setRfLabel(label) { _rfLabel = label; updateLabelButtons(); }
+
+    function updateLabelButtons() {
+      document.querySelectorAll('#rf-label-row .meal-label-btn').forEach(function(b) {
+        b.className = 'meal-label-btn' + (b.dataset.label === _rfLabel ? ' active-' + _rfLabel : '');
+      });
+    }
+
+    function addRfIngredient() {
+      var inp = document.getElementById('rf-ingr-input');
+      var val = (inp.value || '').trim();
+      if (!val) return;
+      _rfIngredients.push(val);
+      inp.value = '';
+      renderRfIngredients();
+    }
+
+    function removeRfIngredient(idx) { _rfIngredients.splice(idx, 1); renderRfIngredients(); }
+
+    function renderRfIngredients() {
+      var el = document.getElementById('rf-ingr-list');
+      if (!el) return;
+      el.innerHTML = _rfIngredients.map(function(ingr, idx) {
+        return '<li class="recipe-ingr-item"><span style="flex:1;">' + escHtmlM(ingr) + '</span>' +
+          '<button class="recipe-ingr-remove" onclick="removeRfIngredient(' + idx + ')">×</button></li>';
+      }).join('');
+    }
+
+    function previewRfPhoto(e) {
+      var file = e.target.files[0];
+      if (!file) return;
+      var canvas = document.createElement('canvas'), img = new Image(), reader = new FileReader();
+      reader.onload = function(ev) {
+        img.onload = function() {
+          var max = 600, w = img.width, h = img.height;
+          if (w > max || h > max) { if (w > h) { h = Math.round(h*max/w); w = max; } else { w = Math.round(w*max/h); h = max; } }
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          _rfPhotoData = canvas.toDataURL('image/jpeg', 0.7);
+          var prev = document.getElementById('rf-photo-preview');
+          if (prev) { prev.src = _rfPhotoData; prev.style.display = 'block'; }
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function saveManualRecipe() {
+      var name = (document.getElementById('rf-name').value || '').trim();
+      if (!name) { alert('Please enter a recipe name.'); return; }
+      RECIPES.push({
+        id: Date.now(), name: name, label: _rfLabel,
+        ingredients: _rfIngredients.slice(),
+        instructions: (document.getElementById('rf-instructions').value || '').trim(),
+        sourceUrl: (document.getElementById('rf-source').value || '').trim(),
+        photo: _rfPhotoData || '', notes: ''
+      });
+      saveRecipes(); renderMealPage();
+      document.getElementById('rf-name').value = '';
+      document.getElementById('rf-instructions').value = '';
+      document.getElementById('rf-source').value = '';
+      _rfIngredients = []; _rfLabel = 'dinner'; _rfPhotoData = null;
+      toggleManualForm();
+    }
+
+    function renderMealPage() {
+      var grid = document.getElementById('recipe-grid');
+      var empty = document.getElementById('recipe-empty');
+      if (!grid) return;
+      var list = _mealFilter === 'all' ? RECIPES : RECIPES.filter(function(r) { return r.label === _mealFilter; });
+      if (!list.length) {
+        grid.innerHTML = '';
+        if (empty) empty.style.display = 'block';
+        renderGroceryList(); return;
+      }
+      if (empty) empty.style.display = 'none';
+      grid.innerHTML = list.map(function(r) {
+        var photoHtml = r.photo
+          ? '<img class="recipe-card-photo" src="' + escHtmlM(r.photo) + '" alt="">'
+          : '<div class="recipe-card-photo-placeholder">&#127859;</div>';
+        var ingrPreview = (r.ingredients || []).slice(0,4).map(function(i){ return String(i); }).join(', ') + ((r.ingredients||[]).length > 4 ? '...' : '');
+        return '<div class="recipe-card">' +
+          photoHtml +
+          '<div class="recipe-card-body">' +
+            '<div class="recipe-card-header">' +
+              '<div class="recipe-card-name">' + escHtmlM(r.name) + '</div>' +
+              '<div style="display:flex;align-items:center;gap:4px;">' +
+                mealBadge(r.label) +
+                '<button class="recipe-delete-btn" onclick="deleteRecipe(\' + r.id + \')" title="Delete">×</button>' +
+              '</div>' +
+            '</div>' +
+            (ingrPreview ? '<div class="recipe-card-ingr">' + escHtmlM(ingrPreview) + '</div>' : '') +
+            '<div class="recipe-card-actions">' +
+              '<button class="recipe-add-grocery" onclick="addIngredientsToGrocery(\' + r.id + \')">+ Grocery List</button>' +
+              '<button class="recipe-view-btn" onclick="viewRecipe(\' + r.id + \')">View</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+      renderGroceryList();
+    }
+
+    function renderGroceryList() {
+      var el = document.getElementById('grocery-list-el');
+      if (!el) return;
+      if (!GROCERY.length) { el.innerHTML = '<div class="grocery-empty">Your list is empty.</div>'; return; }
+      var groups = {}, order = [];
+      GROCERY.forEach(function(item) {
+        var grp = item.fromRecipe || 'Manual';
+        if (!groups[grp]) { groups[grp] = []; order.push(grp); }
+        groups[grp].push(item);
+      });
+      var html = '';
+      order.forEach(function(grp) {
+        if (order.length > 1) html += '<div class="grocery-group-label">' + escHtmlM(grp) + '</div>';
+        html += groups[grp].map(function(item) {
+          var chk = item.checked;
+          return '<div class="grocery-item">' +
+            '<div class="grocery-check ' + (chk ? 'checked' : '') + '" onclick="toggleGrocery(\' + item.id + \')">' +
+              (chk ? '<svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '') +
+            '</div>' +
+            '<span class="grocery-text ' + (chk ? 'checked' : '') + '">' + escHtmlM(item.text) + '</span>' +
+            '<button class="grocery-del" onclick="deleteGrocery(\' + item.id + \')">×</button>' +
+          '</div>';
+        }).join('');
+      });
+      el.innerHTML = html;
+    }
+
+    function addIngredientsToGrocery(recipeId) {
+      var r = RECIPES.find(function(x) { return String(x.id) === String(recipeId); });
+      if (!r || !(r.ingredients || []).length) { alert('No ingredients found for this recipe.'); return; }
+      var added = 0;
+      (r.ingredients || []).forEach(function(ingr) {
+        var text = String(ingr).trim();
+        if (!text) return;
+        var exists = GROCERY.find(function(g) { return g.text.toLowerCase() === text.toLowerCase() && g.fromRecipe === r.name; });
+        if (exists) return;
+        GROCERY.push({ id: String(Date.now() + Math.random()), text: text, checked: false, fromRecipe: r.name });
+        added++;
+      });
+      saveGrocery(); renderGroceryList();
+      if (added > 0) {
+        var btn = document.querySelector('[onclick="addIngredientsToGrocery(\' + recipeId + \')"]');
+        if (btn) { var orig = btn.textContent; btn.textContent = added + ' added!'; setTimeout(function(){ btn.textContent = orig; }, 2000); }
+      }
+    }
+
+    function addGroceryManual() {
+      var inp = document.getElementById('grocery-manual-input');
+      var text = (inp.value || '').trim();
+      if (!text) return;
+      GROCERY.push({ id: String(Date.now() + Math.random()), text: text, checked: false, fromRecipe: null });
+      saveGrocery(); renderGroceryList(); inp.value = '';
+    }
+
+    function toggleGrocery(id) {
+      var item = GROCERY.find(function(x) { return String(x.id) === String(id); });
+      if (!item) return;
+      item.checked = !item.checked;
+      saveGrocery(); renderGroceryList();
+    }
+
+    function deleteGrocery(id) {
+      GROCERY = GROCERY.filter(function(x) { return String(x.id) !== String(id); });
+      saveGrocery(); renderGroceryList();
+    }
+
+    function clearCheckedGrocery() {
+      GROCERY = GROCERY.filter(function(x) { return !x.checked; });
+      saveGrocery(); renderGroceryList();
+    }
+
+    function deleteRecipe(id) {
+      if (!confirm('Delete this recipe?')) return;
+      RECIPES = RECIPES.filter(function(x) { return String(x.id) !== String(id); });
+      saveRecipes(); renderMealPage();
+    }
+
+    function viewRecipe(id) {
+      var r = RECIPES.find(function(x) { return String(x.id) === String(id); });
+      if (!r) return;
+      var photoHtml = r.photo ? '<img class="recipe-modal-photo" src="' + escHtmlM(r.photo) + '">' : '';
+      var ingrHtml = (r.ingredients||[]).length ? '<div class="recipe-modal-section"><h4>Ingredients</h4><ul>' +
+        (r.ingredients||[]).map(function(i){ return '<li>' + escHtmlM(String(i)) + '</li>'; }).join('') + '</ul></div>' : '';
+      var instrHtml = r.instructions ? '<div class="recipe-modal-section"><h4>Instructions</h4><p>' + escHtmlM(r.instructions) + '</p></div>' : '';
+      var sourceHtml = r.sourceUrl ? '<div class="recipe-modal-source">Source: <a href="' + escHtmlM(r.sourceUrl) + '" target="_blank">' + escHtmlM(r.sourceUrl) + '</a></div>' : '';
+      var modal = document.createElement('div');
+      modal.className = 'recipe-modal-overlay';
+      modal.innerHTML = '<div class="recipe-modal">' +
+        '<button class="recipe-modal-close" onclick="this.closest(\'recipe-modal-overlay\').remove()">×</button>' +
+        photoHtml + '<h2>' + escHtmlM(r.name) + '</h2>' + mealBadge(r.label) +
+        ingrHtml + instrHtml + sourceHtml +
+        '<div style="margin-top:16px;">' +
+          '<button class="recipe-add-grocery" onclick="addIngredientsToGrocery(\'' + r.id + '\');this.closest(\'recipe-modal-overlay\').remove()">+ Add to Grocery List</button>' +
+        '</div></div>';
+      modal.addEventListener('click', function(e) { if (e.target === modal) modal.remove(); });
+      document.body.appendChild(modal);
+    }
+
+    function initMealFilterTabs() {
+      document.querySelectorAll('#recipe-filter-tabs .filter-tab').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('#recipe-filter-tabs .filter-tab').forEach(function(b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          _mealFilter = btn.dataset.mfilter;
+          renderMealPage();
+        });
+      });
+    }
+
   </script>
     <div class="page" id="page-meals">
       <div class="page-accent"></div>
