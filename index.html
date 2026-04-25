@@ -569,6 +569,91 @@
       font-style: italic; font-size: 26px; color: var(--muted); margin-bottom: 8px;
     }
     .coming-soon-sub { font-size: 12px; color: var(--muted); opacity: 0.6; }
+
+    /* ════ MEAL PLANNER ════ */
+    .meal-layout { display: grid; grid-template-columns: 1fr 300px; gap: 20px; align-items: start; }
+    @media (max-width: 900px) { .meal-layout { grid-template-columns: 1fr; } }
+    .recipe-import-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 0; }
+    .recipe-url-input { flex: 1; min-width: 200px; font-family: 'DM Sans', sans-serif; font-size: 12.5px; border: 1px solid var(--border); border-radius: 8px; padding: 9px 13px; background: var(--linen); color: var(--text); outline: none; }
+    .recipe-url-input:focus { border-color: var(--olive); }
+    .recipe-import-btn { background: var(--olive); color: white; border: none; border-radius: 8px; padding: 9px 16px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap; }
+    .recipe-import-btn:hover { opacity: 0.85; }
+    .recipe-or { font-size: 11px; color: var(--muted); }
+    .recipe-manual-btn { background: none; border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--muted); cursor: pointer; white-space: nowrap; }
+    .recipe-manual-btn:hover { border-color: var(--olive); color: var(--olive); }
+    .recipe-import-status { font-size: 11.5px; color: var(--muted); padding: 8px 0 0; }
+    .recipe-import-status.error { color: var(--terra); }
+    .recipe-import-status.success { color: var(--olive); }
+
+    .recipe-form { border-top: 1px solid var(--border); margin-top: 16px; padding-top: 16px; }
+    .recipe-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .recipe-form-full { grid-column: 1 / -1; }
+    .recipe-label-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+    .meal-label-btn { border: 1.5px solid var(--border); background: none; border-radius: 20px; padding: 5px 13px; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500; cursor: pointer; color: var(--muted); transition: all 0.14s; }
+    .meal-label-btn.active-breakfast { background: rgba(212,163,74,0.18); border-color: #c17f3a; color: #c17f3a; }
+    .meal-label-btn.active-lunch     { background: rgba(123,123,80,0.15); border-color: var(--olive); color: var(--olive); }
+    .meal-label-btn.active-dinner    { background: rgba(184,107,78,0.15); border-color: var(--terra); color: var(--terra); }
+    .meal-label-btn.active-dessert   { background: rgba(196,150,150,0.18); border-color: #b07070; color: #b07070; }
+    .meal-label-btn.active-drink     { background: rgba(80,120,110,0.15); border-color: #507870; color: #507870; }
+    .recipe-ingr-list { list-style: none; padding: 0; margin: 0 0 8px; }
+    .recipe-ingr-item { display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px solid rgba(212,196,174,0.25); font-size: 12.5px; color: var(--text); }
+    .recipe-ingr-item:last-child { border-bottom: none; }
+    .recipe-ingr-remove { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 13px; opacity: 0.4; padding: 0 2px; }
+    .recipe-ingr-remove:hover { opacity: 0.8; }
+    .ingr-add-row { display: flex; gap: 8px; }
+
+    .recipe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 4px; }
+    .recipe-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+    .recipe-card-photo { width: 100%; height: 140px; object-fit: cover; background: var(--linen); display: block; }
+    .recipe-card-photo-placeholder { width: 100%; height: 140px; background: var(--linen); display: flex; align-items: center; justify-content: center; font-size: 32px; color: var(--muted); opacity: 0.4; }
+    .recipe-card-body { padding: 14px 16px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+    .recipe-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .recipe-card-name { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.3; flex: 1; }
+    .meal-badge { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; padding: 3px 9px; border-radius: 10px; white-space: nowrap; flex-shrink: 0; }
+    .badge-breakfast { background: rgba(212,163,74,0.18); color: #c17f3a; }
+    .badge-lunch     { background: rgba(123,123,80,0.15); color: var(--olive); }
+    .badge-dinner    { background: rgba(184,107,78,0.15); color: var(--terra); }
+    .badge-dessert   { background: rgba(196,150,150,0.18); color: #b07070; }
+    .badge-drink     { background: rgba(80,120,110,0.15); color: #507870; }
+    .recipe-card-ingr { font-size: 11.5px; color: var(--muted); line-height: 1.6; flex: 1; }
+    .recipe-card-actions { display: flex; gap: 8px; margin-top: 4px; }
+    .recipe-add-grocery { background: var(--olive); color: white; border: none; border-radius: 7px; padding: 7px 12px; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500; cursor: pointer; flex: 1; }
+    .recipe-add-grocery:hover { opacity: 0.85; }
+    .recipe-view-btn { background: none; border: 1px solid var(--border); border-radius: 7px; padding: 6px 10px; font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--muted); cursor: pointer; }
+    .recipe-view-btn:hover { border-color: var(--olive); color: var(--olive); }
+    .recipe-delete-btn { background: none; border: none; color: var(--muted); cursor: pointer; opacity: 0.35; font-size: 13px; padding: 0 2px; }
+    .recipe-delete-btn:hover { opacity: 0.75; }
+    .recipe-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .recipe-modal { background: var(--cream); border-radius: 16px; max-width: 560px; width: 100%; max-height: 85vh; overflow-y: auto; padding: 28px; position: relative; }
+    .recipe-modal-close { position: absolute; top: 16px; right: 18px; background: none; border: none; font-size: 20px; color: var(--muted); cursor: pointer; }
+    .recipe-modal h2 { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--text); margin: 0 0 4px; }
+    .recipe-modal-photo { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 16px; }
+    .recipe-modal-section { margin-top: 16px; }
+    .recipe-modal-section h4 { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+    .recipe-modal-section ul { padding-left: 18px; margin: 0; font-size: 13px; color: var(--text); line-height: 1.8; }
+    .recipe-modal-section p { font-size: 13px; color: var(--text); line-height: 1.7; margin: 0; white-space: pre-wrap; }
+    .recipe-modal-source { font-size: 11px; color: var(--muted); margin-top: 12px; }
+    .recipe-modal-source a { color: var(--olive); }
+
+    .grocery-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; position: sticky; top: 20px; }
+    .grocery-title { font-size: 13px; font-weight: 600; color: var(--text); letter-spacing: 0.03em; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
+    .grocery-clear-btn { font-size: 10px; color: var(--muted); background: none; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+    .grocery-clear-btn:hover { color: var(--terra); }
+    .grocery-item { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid rgba(212,196,174,0.3); }
+    .grocery-item:last-child { border-bottom: none; }
+    .grocery-check { width: 15px; height: 15px; min-width: 15px; border: 1.5px solid var(--border); border-radius: 4px; display: flex; align-items: center; justify-content: center; background: white; cursor: pointer; transition: all 0.14s; flex-shrink: 0; }
+    .grocery-check.checked { background: var(--olive); border-color: var(--olive); }
+    .grocery-text { font-size: 12.5px; color: var(--text); flex: 1; }
+    .grocery-text.checked { text-decoration: line-through; color: var(--muted); opacity: 0.55; }
+    .grocery-from { font-size: 10px; color: var(--muted); opacity: 0.7; }
+    .grocery-del { background: none; border: none; color: var(--muted); cursor: pointer; opacity: 0.3; font-size: 12px; padding: 0; }
+    .grocery-del:hover { opacity: 0.7; }
+    .grocery-add-row { display: flex; gap: 8px; margin-top: 12px; }
+    .grocery-add-input { flex: 1; font-family: 'DM Sans', sans-serif; font-size: 12px; border: 1px solid var(--border); border-radius: 7px; padding: 7px 10px; background: var(--linen); color: var(--text); outline: none; }
+    .grocery-add-input:focus { border-color: var(--olive); }
+    .grocery-add-btn { background: var(--terra-lt); color: var(--terra); border: none; border-radius: 7px; padding: 7px 12px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; cursor: pointer; }
+    .grocery-empty { font-size: 12px; color: var(--muted); text-align: center; padding: 20px 0; opacity: 0.6; }
+    .grocery-group-label { font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); padding: 10px 0 4px; font-weight: 600; opacity: 0.7; }
   </style>
 </head>
 <body>
@@ -632,6 +717,7 @@
         <div class="nav-group-label">life admin</div>
         <div class="nav-item" data-page="birthdays"><span class="nav-icon">🎂</span> Birthdays</div>
         <div class="nav-item" data-page="wine"><span class="nav-icon">🍇</span> Wine Making</div>
+        <div class="nav-item" data-page="meals"><span class="nav-icon">🍽</span> Meal Planner</div>
       </div>
 
     </nav>
@@ -1678,6 +1764,8 @@
 
     renderWinePage();
 
+    initMealFilterTabs();
+    renderMealPage();
     renderChecklist('morning-list', MORNING, 'morning');
     renderChecklist('evening-list', EVENING, 'evening');
     renderWorkout();
@@ -1688,5 +1776,89 @@
     renderBirthdayPreview();
     renderBirthdayPage();
   </script>
+    <div class="page" id="page-meals">
+      <div class="page-accent"></div>
+      <div class="page-eyebrow">enjoy.life</div>
+      <h1 class="page-title" style="margin-bottom:6px;">Meal <em>Planner</em></h1>
+      <p class="page-subtitle" style="margin-bottom:24px;">Recipes, grocery lists, and meal ideas all in one place.</p>
+
+      <!-- Import / Add bar -->
+      <div class="card" style="margin-bottom:20px;padding:18px 20px;" id="recipe-import-card">
+        <div class="recipe-import-bar">
+          <input type="url" class="recipe-url-input" id="recipe-url-input" placeholder="Paste a recipe URL to import...">
+          <button class="recipe-import-btn" onclick="importRecipeUrl()">Import</button>
+          <span class="recipe-or">or</span>
+          <button class="recipe-manual-btn" id="manual-toggle-btn" onclick="toggleManualForm()">+ Add manually</button>
+        </div>
+        <div id="recipe-import-status"></div>
+        <div class="recipe-form" id="manual-recipe-form" style="display:none;">
+          <div class="recipe-form-grid">
+            <input type="text" class="todo-input" id="rf-name" placeholder="Recipe name">
+            <input type="url" class="todo-input" id="rf-source" placeholder="Source URL (optional)">
+            <input type="file" accept="image/*" id="rf-photo" style="display:none" onchange="previewRfPhoto(event)">
+            <div style="display:flex;gap:8px;align-items:center;">
+              <label class="wine-file-label" style="flex:1;"><span>Photo:</span><input type="file" accept="image/*" id="rf-photo" onchange="previewRfPhoto(event)"></label>
+              <img id="rf-photo-preview" style="width:48px;height:48px;object-fit:cover;border-radius:6px;display:none;">
+            </div>
+          </div>
+          <div style="margin-bottom:10px;">
+            <div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;">Label</div>
+            <div class="recipe-label-row" id="rf-label-row">
+              <button class="meal-label-btn" data-label="breakfast" onclick="setRfLabel('breakfast')">Breakfast</button>
+              <button class="meal-label-btn" data-label="lunch" onclick="setRfLabel('lunch')">Lunch</button>
+              <button class="meal-label-btn active-dinner" data-label="dinner" onclick="setRfLabel('dinner')">Dinner</button>
+              <button class="meal-label-btn" data-label="dessert" onclick="setRfLabel('dessert')">Dessert</button>
+              <button class="meal-label-btn" data-label="drink" onclick="setRfLabel('drink')">Drink</button>
+            </div>
+          </div>
+          <div style="margin-bottom:10px;">
+            <div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;">Ingredients</div>
+            <ul class="recipe-ingr-list" id="rf-ingr-list"></ul>
+            <div class="ingr-add-row">
+              <input type="text" class="todo-input" id="rf-ingr-input" placeholder="Add ingredient..." style="flex:1;" onkeydown="if(event.key==='Enter'){addRfIngredient();event.preventDefault();}">
+              <button class="recipe-manual-btn" onclick="addRfIngredient()">Add</button>
+            </div>
+          </div>
+          <div style="margin-bottom:14px;">
+            <div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;">Instructions</div>
+            <textarea class="todo-input" id="rf-instructions" rows="4" placeholder="Steps, notes, tips..." style="resize:vertical;min-height:80px;"></textarea>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="recipe-import-btn" onclick="saveManualRecipe()">Save Recipe</button>
+            <button class="recipe-manual-btn" onclick="toggleManualForm()">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter tabs -->
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;" id="recipe-filter-tabs">
+        <button class="filter-tab active" data-mfilter="all">All</button>
+        <button class="filter-tab" data-mfilter="breakfast">Breakfast</button>
+        <button class="filter-tab" data-mfilter="lunch">Lunch</button>
+        <button class="filter-tab" data-mfilter="dinner">Dinner</button>
+        <button class="filter-tab" data-mfilter="dessert">Dessert</button>
+        <button class="filter-tab" data-mfilter="drink">Drink</button>
+      </div>
+
+      <div class="meal-layout">
+        <div>
+          <div class="recipe-grid" id="recipe-grid"></div>
+          <div id="recipe-empty" style="display:none;" class="todo-empty">No recipes yet &#8212; import one or add manually above.</div>
+        </div>
+        <!-- Grocery List sidebar -->
+        <div class="grocery-card">
+          <div class="grocery-title">
+            <span>&#128722; Grocery List</span>
+            <button class="grocery-clear-btn" onclick="clearCheckedGrocery()">Clear checked</button>
+          </div>
+          <div id="grocery-list-el"></div>
+          <div class="grocery-add-row">
+            <input type="text" class="grocery-add-input" id="grocery-manual-input" placeholder="Add item..." onkeydown="if(event.key==='Enter')addGroceryManual()">
+            <button class="grocery-add-btn" onclick="addGroceryManual()">Add</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
 </body>
 </html>
