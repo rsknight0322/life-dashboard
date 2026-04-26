@@ -1785,9 +1785,6 @@
     renderTodayPreview();
     renderBirthdayPreview();
     renderBirthdayPage();
-    migratePhotosToIndexedDB();
-    initMealFilterTabs();
-    renderMealPage();
 
     /* ════ MEAL PLANNER ════ */
     var RECIPES = JSON.parse(localStorage.getItem('_recipes') || '[]');
@@ -1796,6 +1793,12 @@
     var _rfLabel = 'dinner';
     var _rfPhotoData = null;
     var _mealFilter = 'all';
+
+    migratePhotosToIndexedDB();
+    document.addEventListener('DOMContentLoaded', function() {
+      initMealFilterTabs();
+      renderMealPage();
+    });
 
     function saveRecipes() {
       try { localStorage.setItem('_recipes', JSON.stringify(RECIPES)); }
