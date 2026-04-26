@@ -654,6 +654,41 @@
     .grocery-add-btn { background: var(--terra-lt); color: var(--terra); border: none; border-radius: 7px; padding: 7px 12px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; cursor: pointer; }
     .grocery-empty { font-size: 12px; color: var(--muted); text-align: center; padding: 20px 0; opacity: 0.6; }
     .grocery-group-label { font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); padding: 10px 0 4px; font-weight: 600; opacity: 0.7; }
+    /* ── Workout Plan Page ── */
+    .wo-subtitle { font-size: 11px; color: var(--muted); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.07em; }
+    .wo-week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 22px; }
+    .wo-day-card { border-radius: 13px; padding: 11px 5px; text-align: center; min-height: 108px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 5px; cursor: pointer; border: 2px solid transparent; transition: transform 0.15s, box-shadow 0.15s; }
+    .wo-day-card:hover { transform: translateY(-2px); box-shadow: 0 5px 14px rgba(0,0,0,0.11); }
+    .wo-day-card.active { border-color: var(--text); box-shadow: 0 4px 14px rgba(0,0,0,0.13); }
+    .wo-day-name { font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #666; }
+    .wo-day-icon { font-size: 1.3rem; }
+    .wo-day-label { font-size: 10px; font-weight: 700; color: var(--text); line-height: 1.25; }
+    .wo-tag { font-size: 8.5px; font-weight: 700; padding: 2px 6px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.04em; display: inline-block; margin: 1px; }
+    .wo-gym  { background: #f0faf0; } .wo-pt { background: #e8f4fd; } .wo-pilates { background: #fdf4f8; }
+    .wo-tag-gym     { background: #c8edc8; color: #2e7d32; }
+    .wo-tag-pt      { background: #c2e0f7; color: #1565c0; }
+    .wo-tag-cardio  { background: #fff3cd; color: #7a5200; }
+    .wo-tag-pilates { background: #f7d6e8; color: #880e4f; }
+    .wo-detail { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 2px 16px rgba(0,0,0,0.07); display: none; }
+    .wo-detail.show { display: block; }
+    .wo-detail-header { display: flex; align-items: center; gap: 12px; margin-bottom: 13px; padding-bottom: 11px; border-bottom: 1px solid var(--border); }
+    .wo-detail-icon-lg { font-size: 1.9rem; }
+    .wo-detail-title { font-size: 15px; font-weight: 700; color: var(--text); }
+    .wo-detail-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .wo-goals-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .wo-goal-chip { font-size: 10.5px; padding: 3px 10px; border-radius: 20px; background: #f0f0f0; color: #555; font-weight: 500; }
+    .wo-section-title { font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #aaa; margin: 13px 0 6px; }
+    .wo-ex-item { display: flex; justify-content: space-between; align-items: center; padding: 9px 13px; border-radius: 9px; margin-bottom: 5px; background: #f8f8f8; gap: 8px; }
+    .wo-ex-left { display: flex; flex-direction: column; gap: 3px; flex: 1; }
+    .wo-ex-name { font-size: 12.5px; font-weight: 600; color: var(--text); }
+    .wo-ex-link { font-size: 10.5px; color: #e05c00; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 3px; }
+    .wo-ex-link:hover { text-decoration: underline; }
+    .wo-ex-sets { font-size: 10.5px; color: #666; background: #e8e8e8; padding: 2px 9px; border-radius: 9px; white-space: nowrap; flex-shrink: 0; align-self: center; }
+    .wo-note { background: #fffbf0; border-left: 3px solid #f4c542; padding: 10px 14px; border-radius: 0 10px 10px 0; font-size: 12px; color: #5a4500; margin-top: 12px; line-height: 1.6; }
+    .fsh-panel { padding: 10px 16px 16px; border-top: 1px solid rgba(0,0,0,0.08); }
+    .fsh-status { font-size: 11px; color: var(--muted); margin-bottom: 6px; min-height: 15px; line-height: 1.4; }
+    .fsh-btn { display: none; width: 100%; padding: 8px 10px; font-size: 11.5px; font-family: 'DM Sans', sans-serif; font-weight: 500; background: var(--olive); color: white; border: none; border-radius: 7px; cursor: pointer; margin-top: 4px; letter-spacing: 0.01em; }
+    .fsh-btn:hover { opacity: 0.88; }
   </style>
 </head>
 <body>
@@ -727,6 +762,12 @@
       <img src="5.png" alt="">
     </div>
     <div class="sb-quote">"You are exactly where you're meant to be."</div>
+
+    <div class="fsh-panel">
+      <div id="fsh-status" class="fsh-status"></div>
+      <button id="fsh-setup-btn" class="fsh-btn" onclick="_FSH.setup()">🔗 Link data file</button>
+      <button id="fsh-reconnect-btn" class="fsh-btn" onclick="_FSH.reconnect()">🔄 Reconnect data file</button>
+    </div>
 
   </aside>
 
@@ -884,9 +925,17 @@
         <div class="coming-soon-sub">Coming soon.</div></div>
     </div>
     <div class="page" id="page-workout">
-      <div class="coming-soon"><div class="coming-soon-icon">🤸</div>
-        <div class="coming-soon-title">full workout plan</div>
-        <div class="coming-soon-sub">Coming soon.</div></div>
+      <div class="page-accent"></div>
+      <div class="page-top">
+        <div>
+          <div class="page-eyebrow">fitness</div>
+          <h1 class="page-title">Weekly <em>Workout Plan</em></h1>
+          <p class="page-subtitle">Beginner · 60 min gym sessions · PT-safe</p>
+        </div>
+      </div>
+      <p class="wo-subtitle">Tap a day to see exercises &amp; demos</p>
+      <div class="wo-week-grid" id="wo-grid"></div>
+      <div class="wo-detail" id="wo-detail"></div>
     </div>
     <div class="page" id="page-tobuys">
       <div class="coming-soon"><div class="coming-soon-icon">🛍</div>
@@ -1001,6 +1050,160 @@
 
 
   <script>
+    /* ── Persistent File Storage ── */
+    var _FSH = (function () {
+      var IDB_NAME = 'dash_fsh_v1';
+      var _fh = null, _wt = null;
+      var supported = typeof window.showSaveFilePicker === 'function';
+
+      /* ── IndexedDB helpers (stores the file handle across sessions) ── */
+      function openIDB() {
+        return new Promise(function (res, rej) {
+          var r = indexedDB.open(IDB_NAME, 1);
+          r.onupgradeneeded = function (e) { e.target.result.createObjectStore('s'); };
+          r.onsuccess = function (e) { res(e.target.result); };
+          r.onerror = rej;
+        });
+      }
+      function idbGet(key) {
+        return openIDB().then(function (db) {
+          return new Promise(function (res, rej) {
+            var r = db.transaction('s').objectStore('s').get(key);
+            r.onsuccess = function (e) { res(e.target.result || null); };
+            r.onerror = rej;
+          });
+        });
+      }
+      function idbPut(key, val) {
+        return openIDB().then(function (db) {
+          return new Promise(function (res, rej) {
+            var tx = db.transaction('s', 'readwrite');
+            tx.objectStore('s').put(val, key);
+            tx.oncomplete = res;
+            tx.onerror = rej;
+          });
+        });
+      }
+
+      /* ── localStorage snapshot (captures every key, including dynamic ones) ── */
+      function snapshot() {
+        var obj = {};
+        for (var i = 0; i < localStorage.length; i++) {
+          var k = localStorage.key(i);
+          obj[k] = localStorage.getItem(k);
+        }
+        return obj;
+      }
+      function applySnapshot(data) {
+        var orig = Storage.prototype.setItem;
+        Object.keys(data).forEach(function (k) { orig.call(localStorage, k, data[k]); });
+      }
+
+      /* ── File write (debounced 400 ms) ── */
+      async function writeFile() {
+        if (!_fh) return;
+        try {
+          var w = await _fh.createWritable();
+          await w.write(JSON.stringify(snapshot(), null, 2));
+          await w.close();
+          setStatus('\u2713 Data saved to file', 'ok');
+        } catch (e) {
+          setStatus('\u26a0\ufe0f Could not write to file', 'warn');
+        }
+      }
+      function scheduleWrite() { clearTimeout(_wt); _wt = setTimeout(writeFile, 400); }
+
+      /* ── Patch localStorage so every save auto-syncs to file ── */
+      var _origSet = Storage.prototype.setItem;
+      Storage.prototype.setItem = function (k, v) {
+        _origSet.call(this, k, v);
+        if (this === localStorage && _fh) scheduleWrite();
+      };
+
+      /* ── UI helpers ── */
+      function setStatus(msg, type) {
+        var el = document.getElementById('fsh-status');
+        if (!el) return;
+        el.textContent = msg;
+        el.style.color = type === 'ok' ? 'var(--olive)' : type === 'warn' ? '#b5763a' : 'var(--muted)';
+      }
+      function showBtn(id, show) {
+        var el = document.getElementById(id);
+        if (el) el.style.display = show ? 'block' : 'none';
+      }
+
+      /* ── Init: runs on every page load ── */
+      async function init() {
+        if (!supported) {
+          setStatus('Open in Chrome for file storage', 'warn');
+          return;
+        }
+        /* sessionStorage flag prevents infinite reload loop */
+        if (sessionStorage.getItem('_fsh_ready')) {
+          var h = await idbGet('fh').catch(function () { return null; });
+          if (h) { _fh = h; setStatus('\u2713 File storage active', 'ok'); }
+          return;
+        }
+        try {
+          var h = await idbGet('fh');
+          if (!h) {
+            setStatus('No data file linked yet', 'muted');
+            showBtn('fsh-setup-btn', true);
+            return;
+          }
+          var perm = await h.queryPermission({ mode: 'readwrite' });
+          if (perm === 'granted') {
+            _fh = h;
+            var file = await h.getFile();
+            applySnapshot(JSON.parse(await file.text()));
+            sessionStorage.setItem('_fsh_ready', '1');
+            location.reload();          /* reload so app boots with fresh data */
+          } else {
+            _fh = h;
+            setStatus('Tap to reconnect your data file \u2192', 'warn');
+            showBtn('fsh-reconnect-btn', true);
+          }
+        } catch (e) {
+          setStatus('Storage error \u2014 link file again', 'warn');
+          showBtn('fsh-setup-btn', true);
+        }
+      }
+
+      /* ── Public: first-time setup ── */
+      async function setup() {
+        try {
+          var h = await window.showSaveFilePicker({
+            suggestedName: 'dashboard-data.json',
+            types: [{ description: 'Dashboard Data', accept: { 'application/json': ['.json'] } }]
+          });
+          _fh = h;
+          await idbPut('fh', h);
+          sessionStorage.setItem('_fsh_ready', '1');
+          await writeFile();
+          showBtn('fsh-setup-btn', false);
+          setStatus('\u2713 Data file linked \u2014 all changes now save permanently', 'ok');
+        } catch (e) { /* user cancelled */ }
+      }
+
+      /* ── Public: reconnect after browser restart ── */
+      async function reconnect() {
+        if (!_fh) return;
+        try {
+          var perm = await _fh.requestPermission({ mode: 'readwrite' });
+          if (perm === 'granted') {
+            var file = await _fh.getFile();
+            applySnapshot(JSON.parse(await file.text()));
+            sessionStorage.setItem('_fsh_ready', '1');
+            showBtn('fsh-reconnect-btn', false);
+            location.reload();
+          }
+        } catch (e) {}
+      }
+
+      init();
+      return { setup: setup, reconnect: reconnect };
+    })();
+
     /* ── Nav ── */
     document.querySelectorAll('.nav-item').forEach(function(el) {
       el.addEventListener('click', function() {
@@ -1102,14 +1305,188 @@
     ];
 
     var WORKOUTS = {
-      0: {type:'Cardio',          name:'Sunday Cardio',      details:['45 min run or outdoor walk','Keep it easy & enjoyable']},
-      1: {type:'Strength',        name:'Upper Body',         details:['45–60 min','Push + pull focus']},
-      2: {type:'Strength',        name:'Lower Body',         details:['45–60 min','Glutes + legs']},
-      3: {type:'Cardio + Core',   name:'Cardio & Core',      details:['30 min cardio','15 min core circuit']},
-      4: {type:'Strength',        name:'Full Body',          details:['45–60 min','Compound movements']},
-      5: {type:'Rest',            name:'Rest Day',           details:[], rest:true},
-      6: {type:'Active Recovery', name:'Yoga or Pilates',    details:['45 min','Stretch, breathe, reset']}
+      0: {type:'Pilates',   name:'Mat Pilates',        details:['30–45 min at home','Core · Flexibility · Active Recovery']},
+      1: {type:'Gym',       name:'Lower Body A',       details:['60 min','Glutes · Hamstrings · Inner Thighs']},
+      2: {type:'PT',        name:'Physical Therapy',   details:['PT session','Ankle & knee rehab']},
+      3: {type:'PT',        name:'Physical Therapy',   details:['PT session','Ankle & knee rehab']},
+      4: {type:'PT',        name:'Physical Therapy',   details:['PT session','Ankle & knee rehab']},
+      5: {type:'Gym',       name:'Upper Body + Core',  details:['60 min','Back sculpting · Core · Arms']},
+      6: {type:'Gym',       name:'Lower Body B',       details:['60 min','Glutes · Ankle & Knee Stability']}
     };
+
+    /* ── Full Workout Plan ── */
+    var WO_DAYS = [
+      {
+        id:0, name:'Mon', label:'Lower Body A', icon:'🏋️', theme:'wo-gym',
+        tags:[['wo-tag-gym','Strength'],['wo-tag-cardio','Cardio']],
+        focus:'Glutes · Hamstrings · Inner Thighs', duration:'60 min',
+        goals:['Glute growth','Hamstring strength','Inner thigh strength'],
+        sections:[
+          {title:'Warm-Up (5 min)', ex:[
+            {n:'Treadmill Walk (incline 3–5)',s:'5 min',url:'https://www.youtube.com/results?search_query=treadmill+incline+walk+beginners'}
+          ]},
+          {title:'Strength (40 min)', ex:[
+            {n:'Goblet Squat (kettlebell)',s:'3 × 12',url:'https://www.youtube.com/results?search_query=goblet+squat+kettlebell+how+to+beginners'},
+            {n:'Romanian Deadlift (dumbbells)',s:'3 × 10',url:'https://www.youtube.com/results?search_query=romanian+deadlift+dumbbells+how+to+beginners'},
+            {n:'Sumo Squat (kettlebell)',s:'3 × 12',url:'https://www.youtube.com/results?search_query=sumo+squat+kettlebell+inner+thighs+beginners'},
+            {n:'Cable Hip Abduction — low pulley',s:'3 × 15 each',url:'https://www.youtube.com/results?search_query=cable+hip+abduction+low+pulley+how+to'},
+            {n:'Glute Bridge — bodyweight',s:'3 × 15',url:'https://www.youtube.com/results?search_query=glute+bridge+bodyweight+how+to+beginners'},
+            {n:'Medicine Ball Inner Thigh Squeeze',s:'3 × 20',url:'https://www.youtube.com/results?search_query=medicine+ball+inner+thigh+squeeze+exercise'}
+          ]},
+          {title:'Cardio (10 min)', ex:[
+            {n:'Treadmill Incline Walk',s:'10 min',url:'https://www.youtube.com/results?search_query=incline+treadmill+walk+glutes'}
+          ]},
+          {title:'Cool-Down (5 min)', ex:[
+            {n:'Calf, Ankle & Hip Flexor Stretches',s:'5 min',url:'https://www.youtube.com/results?search_query=calf+ankle+hip+flexor+stretch+cool+down'}
+          ]}
+        ],
+        note:'Start very light — form over weight always. Sumo squats and cable hip abduction directly hit your inner thighs.'
+      },
+      {
+        id:1, name:'Tue', label:'Physical Therapy', icon:'🩺', theme:'wo-pt',
+        tags:[['wo-tag-pt','PT']],
+        focus:'PT Exercises', duration:'PT session',
+        goals:['Ankle & knee rehab','Mobility'],
+        sections:[{title:'Session', ex:[{n:'PT exercises as prescribed',s:'Per PT',url:''}]}],
+        note:'Let PT do its work. These exercises build the foundation your strength training sits on top of.'
+      },
+      {
+        id:2, name:'Wed', label:'Physical Therapy', icon:'🩺', theme:'wo-pt',
+        tags:[['wo-tag-pt','PT']],
+        focus:'PT Exercises', duration:'PT session',
+        goals:['Ankle & knee rehab','Mobility'],
+        sections:[{title:'Session', ex:[{n:'PT exercises as prescribed',s:'Per PT',url:''}]}],
+        note:'Rest from strength training today. Recovery is when muscles actually grow.'
+      },
+      {
+        id:3, name:'Thu', label:'Physical Therapy', icon:'🩺', theme:'wo-pt',
+        tags:[['wo-tag-pt','PT']],
+        focus:'PT Exercises', duration:'PT session',
+        goals:['Ankle & knee rehab','Mobility'],
+        sections:[{title:'Session', ex:[{n:'PT exercises as prescribed',s:'Per PT',url:''}]}],
+        note:'Last PT day of the week. A great time to ask your therapist to review your strength training plan.'
+      },
+      {
+        id:4, name:'Fri', label:'Upper Body + Core', icon:'💪', theme:'wo-gym',
+        tags:[['wo-tag-gym','Strength'],['wo-tag-cardio','Cardio']],
+        focus:'Back Sculpting · Core · Arms', duration:'60 min',
+        goals:['Waist sculpting','Back sculpting','Overall strength'],
+        sections:[
+          {title:'Warm-Up (5 min)', ex:[
+            {n:'Treadmill Walk (incline 3)',s:'5 min',url:'https://www.youtube.com/results?search_query=treadmill+incline+walk+warm+up'}
+          ]},
+          {title:'Strength (40 min)', ex:[
+            {n:'Cable Lat Pulldown',s:'3 × 12',url:'https://www.youtube.com/results?search_query=cable+lat+pulldown+how+to+beginners+form'},
+            {n:'Cable Seated Row',s:'3 × 12',url:'https://www.youtube.com/results?search_query=cable+seated+row+how+to+beginners+form'},
+            {n:'Dumbbell Bent-Over Row',s:'3 × 10 each',url:'https://www.youtube.com/results?search_query=dumbbell+bent+over+row+how+to+beginners'},
+            {n:'Cable Face Pull (rope attachment)',s:'3 × 15',url:'https://www.youtube.com/results?search_query=cable+face+pull+rope+how+to+beginners'},
+            {n:'Plank Hold',s:'3 × 20–30 sec',url:'https://www.youtube.com/results?search_query=how+to+plank+correct+form+beginners'},
+            {n:'Deadbug — bodyweight',s:'3 × 10 each side',url:'https://www.youtube.com/results?search_query=deadbug+exercise+how+to+beginners+core'}
+          ]},
+          {title:'Cardio (10 min)', ex:[
+            {n:'Treadmill Incline Walk',s:'10 min',url:'https://www.youtube.com/results?search_query=incline+treadmill+walk+fat+burn'}
+          ]},
+          {title:'Cool-Down (5 min)', ex:[
+            {n:'Chest Opener, Thoracic Rotation, Ankle Circles',s:'5 min',url:'https://www.youtube.com/results?search_query=chest+opener+thoracic+rotation+stretch+cool+down'}
+          ]}
+        ],
+        note:'Back sculpting comes from building the muscles underneath. Lat pulldowns and rows are your main tools. Core work carves your waist.'
+      },
+      {
+        id:5, name:'Sat', label:'Lower Body B', icon:'🏋️', theme:'wo-gym',
+        tags:[['wo-tag-gym','Strength'],['wo-tag-cardio','Cardio']],
+        focus:'Glutes · Ankle & Knee Stability', duration:'60 min',
+        goals:['Glute growth','Ankle flexibility','Knee stability'],
+        sections:[
+          {title:'Warm-Up (5 min)', ex:[
+            {n:'Treadmill Walk (incline 3)',s:'5 min',url:'https://www.youtube.com/results?search_query=treadmill+incline+walk+warm+up'}
+          ]},
+          {title:'Strength (40 min)', ex:[
+            {n:'Bulgarian Split Squat (light dumbbells)',s:'3 × 10 each',url:'https://www.youtube.com/results?search_query=bulgarian+split+squat+beginners+how+to+form'},
+            {n:'Cable Kickback (ankle attachment)',s:'3 × 15 each',url:'https://www.youtube.com/results?search_query=cable+glute+kickback+ankle+attachment+how+to'},
+            {n:'Single-Leg Deadlift (light dumbbell)',s:'3 × 10 each',url:'https://www.youtube.com/results?search_query=single+leg+deadlift+dumbbell+beginners+balance'},
+            {n:'Lateral Band Walk',s:'3 × 15 each way',url:'https://www.youtube.com/results?search_query=lateral+band+walk+how+to+glutes+beginners'},
+            {n:'Standing Calf Raise',s:'3 × 20',url:'https://www.youtube.com/results?search_query=standing+calf+raise+how+to+beginners'},
+            {n:'Ankle Dorsiflexion (resistance band)',s:'3 × 15 each',url:'https://www.youtube.com/results?search_query=ankle+dorsiflexion+resistance+band+exercise+flexibility'}
+          ]},
+          {title:'Cardio (10 min)', ex:[
+            {n:'Treadmill Incline Walk',s:'10 min',url:'https://www.youtube.com/results?search_query=incline+treadmill+walk+glutes+beginners'}
+          ]},
+          {title:'Cool-Down (5 min)', ex:[
+            {n:'Deep Squat Hold, Ankle Circles, Calf Stretch',s:'5 min',url:'https://www.youtube.com/results?search_query=deep+squat+hold+ankle+circles+calf+stretch+cool+down'}
+          ]}
+        ],
+        note:'Single-leg exercises build ankle and knee stability fast. Control matters more than weight — go light and focus on balance.'
+      },
+      {
+        id:6, name:'Sun', label:'Mat Pilates', icon:'🧘', theme:'wo-pilates',
+        tags:[['wo-tag-pilates','Pilates']],
+        focus:'Core · Flexibility · Active Recovery', duration:'30–45 min',
+        goals:['Waist sculpting','Ankle flexibility','Active recovery'],
+        sections:[
+          {title:'At-Home Mat Pilates (30–45 min)', ex:[
+            {n:'The Hundred',s:'100 pumps',url:'https://www.youtube.com/results?search_query=pilates+the+hundred+how+to+beginners'},
+            {n:'Single Leg Circles',s:'5 each dir, each leg',url:'https://www.youtube.com/results?search_query=pilates+single+leg+circles+how+to+beginners'},
+            {n:'Crisscross (oblique focus)',s:'10 each side',url:'https://www.youtube.com/results?search_query=pilates+crisscross+obliques+how+to+beginners'},
+            {n:'Single Leg Stretch',s:'10 each side',url:'https://www.youtube.com/results?search_query=pilates+single+leg+stretch+how+to+beginners'},
+            {n:'Side-Lying Leg Lifts',s:'15 each side',url:'https://www.youtube.com/results?search_query=pilates+side+lying+leg+lifts+how+to+beginners'},
+            {n:'Swan / Back Extension',s:'8–10 reps',url:'https://www.youtube.com/results?search_query=pilates+swan+back+extension+how+to+beginners'},
+            {n:'Spine Stretch Forward',s:'8 reps',url:'https://www.youtube.com/results?search_query=pilates+spine+stretch+forward+how+to+beginners'},
+            {n:'Ankle Alphabet',s:'1× each ankle',url:'https://www.youtube.com/results?search_query=ankle+alphabet+exercise+flexibility+how+to'}
+          ]}
+        ],
+        note:'Pilates hits your core and waist directly. Ankle Alphabet is simple but powerful for ankle flexibility — do it slowly and intentionally.'
+      }
+    ];
+
+    function woShowDay(id) {
+      var d = WO_DAYS[id];
+      document.querySelectorAll('.wo-day-card').forEach(function(c){ c.classList.remove('active'); });
+      var card = document.getElementById('wo-c' + id);
+      if (card) card.classList.add('active');
+      var html = '<div class="wo-detail-header">';
+      html += '<span class="wo-detail-icon-lg">' + d.icon + '</span>';
+      html += '<div><div class="wo-detail-title">' + d.name + ' — ' + d.label + '</div>';
+      html += '<div class="wo-detail-sub">' + d.focus + ' &middot; ' + d.duration + '</div></div></div>';
+      html += '<div class="wo-goals-row">';
+      d.goals.forEach(function(g){ html += '<span class="wo-goal-chip">🎯 ' + g + '</span>'; });
+      html += '</div>';
+      d.sections.forEach(function(s){
+        html += '<div class="wo-section-title">' + s.title + '</div>';
+        s.ex.forEach(function(e){
+          html += '<div class="wo-ex-item"><div class="wo-ex-left">';
+          html += '<span class="wo-ex-name">' + e.n + '</span>';
+          if (e.url) html += '<a class="wo-ex-link" href="' + e.url + '" target="_blank" rel="noopener">▶ Watch Demo on YouTube</a>';
+          html += '</div><span class="wo-ex-sets">' + e.s + '</span></div>';
+        });
+      });
+      if (d.note) html += '<div class="wo-note">💡 ' + d.note + '</div>';
+      var det = document.getElementById('wo-detail');
+      det.className = 'wo-detail show';
+      det.innerHTML = html;
+    }
+
+    function woInitGrid() {
+      var grid = document.getElementById('wo-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      WO_DAYS.forEach(function(d){
+        var div = document.createElement('div');
+        div.className = 'wo-day-card ' + d.theme;
+        div.id = 'wo-c' + d.id;
+        div.onclick = function(){ woShowDay(d.id); };
+        var tagsHtml = d.tags.map(function(t){ return '<span class="wo-tag ' + t[0] + '">' + t[1] + '</span>'; }).join('');
+        div.innerHTML =
+          '<span class="wo-day-name">' + d.name + '</span>' +
+          '<span class="wo-day-icon">' + d.icon + '</span>' +
+          '<span class="wo-day-label">' + d.label + '</span>' +
+          tagsHtml;
+        grid.appendChild(div);
+      });
+      /* open today's day by default (Mon=0 … Sun=6, matching WO_DAYS index) */
+      var todayIdx = (new Date().getDay() + 6) % 7; /* convert JS Sun=0 to Mon=0 */
+      woShowDay(todayIdx);
+    }
 
     // ── Supplements — single source of truth for both pages ──
     var SUPPLEMENTS = [
@@ -1779,6 +2156,7 @@
     renderChecklist('morning-list', MORNING, 'morning');
     renderChecklist('evening-list', EVENING, 'evening');
     renderWorkout();
+    woInitGrid();
     renderSupplements();
     renderSuppDatabase();
     renderTodoList();
