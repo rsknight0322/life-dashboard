@@ -1784,8 +1784,14 @@
     var _rfPhotoData = null;
     var _mealFilter = 'all';
 
-    function saveRecipes() { localStorage.setItem('_recipes', JSON.stringify(RECIPES)); }
-    function saveGrocery()  { localStorage.setItem('_grocery',  JSON.stringify(GROCERY)); }
+    function saveRecipes() {
+      try { localStorage.setItem('_recipes', JSON.stringify(RECIPES)); }
+      catch(e) { alert('Storage full — try removing recipe photos to free up space.'); }
+    }
+    function saveGrocery() {
+      try { localStorage.setItem('_grocery', JSON.stringify(GROCERY)); }
+      catch(e) { console.warn('Grocery save failed', e); }
+    }
 
     function escHtmlM(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
@@ -2068,11 +2074,11 @@
       var modal = document.createElement('div');
       modal.className = 'recipe-modal-overlay';
       modal.innerHTML = '<div class="recipe-modal">' +
-        '<button class="recipe-modal-close" onclick="this.closest(\'recipe-modal-overlay\').remove()">×</button>' +
+        '<button class="recipe-modal-close" onclick="document.querySelector(\'.recipe-modal-overlay\').remove()">×</button>' +
         photoHtml + '<h2>' + escHtmlM(r.name) + '</h2>' + mealBadge(r.label) +
         ingrHtml + instrHtml + sourceHtml +
         '<div style="margin-top:16px;">' +
-          '<button class="recipe-add-grocery" onclick="addIngredientsToGrocery(\'' + r.id + '\');this.closest(\'recipe-modal-overlay\').remove()">+ Add to Grocery List</button>' +
+          '<button class="recipe-add-grocery" onclick="addIngredientsToGrocery(\'' + r.id + '\');document.querySelector(\'.recipe-modal-overlay\').remove()">+ Add to Grocery List</button>' +
         '</div></div>';
       modal.addEventListener('click', function(e) { if (e.target === modal) modal.remove(); });
       document.body.appendChild(modal);
