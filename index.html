@@ -1596,7 +1596,7 @@
     function doAddWine(photoData) {
       var name = (document.getElementById('wine-name').value || '').trim();
       if (!name) return;
-      WINES.push({
+      var newWine = {
         id: Date.now(), name: name,
         status:    document.getElementById('wine-status').value,
         started:   document.getElementById('wine-started').value || null,
@@ -1604,8 +1604,10 @@
         og:        document.getElementById('wine-og').value.trim(),
         fg:        document.getElementById('wine-fg').value.trim(),
         recipe:    document.getElementById('wine-recipe').value.trim(),
-        photo:     photoData || null
-      });
+        photo: null, hasPhoto: false
+      };
+      if (photoData) { newWine.hasPhoto = true; photoSave('w_' + newWine.id, photoData); }
+      WINES.push(newWine);
       saveWines();
       ['wine-name','wine-started','wine-check','wine-og','wine-fg','wine-recipe'].forEach(function(id) {
         var el = document.getElementById(id); if (el) el.value = '';
@@ -1642,6 +1644,7 @@
     }
 
     function deleteWine(id) {
+      photoDel('w_' + id);
       WINES = WINES.filter(function(w) { return w.id !== id; });
       saveWines(); renderWinePage();
     }
@@ -1692,7 +1695,10 @@
       w.recipe    = document.getElementById('we-recipe-' + id).value.trim();
       var file = document.getElementById('we-photo-' + id).files[0];
       if (file) {
-        compressAndAdd(file, function(compressed) { w.photo = compressed; saveWines(); renderWinePage(); });
+        compressAndAdd(file, function(compressed) {
+          w.hasPhoto = true; w.photo = null;
+          photoSave('w_' + id, compressed).then(function() { saveWines(); renderWinePage(); });
+        });
       } else { saveWines(); renderWinePage(); }
     }
 
@@ -1709,8 +1715,8 @@
           var abv    = calcABV(w.og, w.fg);
           var sLabel = { active:'Active', planned:'Planned', completed:'Completed' }[w.status] || w.status;
           var sCls   = { active:'wine-active', planned:'wine-planned', completed:'wine-completed' }[w.status] || '';
-          var photoHtml = w.photo
-            ? '<img src="' + w.photo + '" class="wine-photo" alt="' + escHtml(w.name) + '">'
+          var photoHtml = w.hasPhoto
+            ? '<img id="photo-w-' + w.id + '" src="" class="wine-photo" alt="' + escHtml(w.name) + '">'
             : '<div class="wine-photo-placeholder">&#127863;</div>';
           var checkHtml = '';
           if (w.checkDate) {
@@ -1750,6 +1756,12 @@
             '</div></div>';
         }).join('');
       }
+      WINES.filter(function(w) { return w.hasPhoto; }).forEach(function(w) {
+        photoLoad('w_' + w.id).then(function(data) {
+          var el = document.getElementById('photo-w-' + w.id);
+          if (el && data) el.src = data;
+        });
+      });
       var addBtn = document.getElementById('wine-add-btn');
       if (addBtn) addBtn.onclick = addWine;
       document.querySelectorAll('[data-wfilter]').forEach(function(btn) {
@@ -1773,6 +1785,7 @@
     renderTodayPreview();
     renderBirthdayPreview();
     renderBirthdayPage();
+    migratePhotosToIndexedDB();
     initMealFilterTabs();
     renderMealPage();
 
@@ -1791,6 +1804,63 @@
     function saveGrocery() {
       try { localStorage.setItem('_grocery', JSON.stringify(GROCERY)); }
       catch(e) { console.warn('Grocery save failed', e); }
+    }
+
+    /* ════ PHOTO STORE — IndexedDB (no size limit) ════ */
+    var _photoDB = null;
+    function _getPhotoDB() {
+      if (_photoDB) return Promise.resolve(_photoDB);
+      return new Promise(function(resolve, reject) {
+        var req = indexedDB.open('dash_photos', 1);
+        req.onupgradeneeded = function(e) { e.target.result.createObjectStore('p'); };
+        req.onsuccess = function(e) { _photoDB = e.target.result; resolve(_photoDB); };
+        req.onerror = function() { reject(new Error('IndexedDB unavailable')); };
+      });
+    }
+    function photoSave(key, dataUrl) {
+      return _getPhotoDB().then(function(db) {
+        return new Promise(function(resolve, reject) {
+          var tx = db.transaction('p', 'readwrite');
+          tx.objectStore('p').put(dataUrl, key);
+          tx.oncomplete = resolve; tx.onerror = reject;
+        });
+      });
+    }
+    function photoLoad(key) {
+      return _getPhotoDB().then(function(db) {
+        return new Promise(function(resolve) {
+          var req = db.transaction('p').objectStore('p').get(key);
+          req.onsuccess = function() { resolve(req.result || null); };
+          req.onerror   = function() { resolve(null); };
+        });
+      });
+    }
+    function photoDel(key) {
+      return _getPhotoDB().then(function(db) {
+        return new Promise(function(resolve) {
+          var tx = db.transaction('p', 'readwrite');
+          tx.objectStore('p').delete(key);
+          tx.oncomplete = resolve; tx.onerror = resolve;
+        });
+      });
+    }
+    function migratePhotosToIndexedDB() {
+      var wChanged = false;
+      WINES.forEach(function(w) {
+        if (w.photo && w.photo.startsWith('data:')) {
+          photoSave('w_' + w.id, w.photo);
+          w.photo = null; w.hasPhoto = true; wChanged = true;
+        }
+      });
+      if (wChanged) saveWines();
+      var rChanged = false;
+      RECIPES.forEach(function(r) {
+        if (r.photo && r.photo.startsWith('data:')) {
+          photoSave('r_' + r.id, r.photo);
+          r.photo = null; r.hasPhoto = true; rChanged = true;
+        }
+      });
+      if (rChanged) saveRecipes();
     }
 
     function escHtmlM(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -1934,18 +2004,24 @@
     function saveManualRecipe() {
       var name = (document.getElementById('rf-name').value || '').trim();
       if (!name) { alert('Please enter a recipe name.'); return; }
-      RECIPES.push({
+      var saveBtn = document.querySelector('#manual-recipe-form .recipe-import-btn');
+      if (saveBtn) { if (saveBtn.dataset.saving) return; saveBtn.dataset.saving = '1'; }
+
+      var newRecipe = {
         id: Date.now(), name: name, label: _rfLabel,
         ingredients: _rfIngredients.slice(),
         instructions: (document.getElementById('rf-instructions').value || '').trim(),
         sourceUrl: (document.getElementById('rf-source').value || '').trim(),
-        photo: _rfPhotoData || '', notes: ''
-      });
+        photo: null, hasPhoto: false, notes: ''
+      };
+      if (_rfPhotoData) { newRecipe.hasPhoto = true; photoSave('r_' + newRecipe.id, _rfPhotoData); }
+      RECIPES.push(newRecipe);
       saveRecipes(); renderMealPage();
       document.getElementById('rf-name').value = '';
       document.getElementById('rf-instructions').value = '';
       document.getElementById('rf-source').value = '';
       _rfIngredients = []; _rfLabel = 'dinner'; _rfPhotoData = null;
+      if (saveBtn) delete saveBtn.dataset.saving;
       toggleManualForm();
     }
 
@@ -1961,8 +2037,9 @@
       }
       if (empty) empty.style.display = 'none';
       grid.innerHTML = list.map(function(r) {
-        var photoHtml = r.photo
-          ? '<img class="recipe-card-photo" src="' + escHtmlM(r.photo) + '" alt="">'
+        var photoSrc = (r.photo && r.photo.startsWith('http')) ? escHtmlM(r.photo) : '';
+        var photoHtml = (r.hasPhoto || photoSrc)
+          ? '<img id="photo-r-' + r.id + '" class="recipe-card-photo" src="' + photoSrc + '" alt="">'
           : '<div class="recipe-card-photo-placeholder">&#127859;</div>';
         var ingrPreview = (r.ingredients || []).slice(0,4).map(function(i){ return String(i); }).join(', ') + ((r.ingredients||[]).length > 4 ? '...' : '');
         return '<div class="recipe-card">' +
@@ -1972,18 +2049,33 @@
               '<div class="recipe-card-name">' + escHtmlM(r.name) + '</div>' +
               '<div style="display:flex;align-items:center;gap:4px;">' +
                 mealBadge(r.label) +
-                '<button class="recipe-delete-btn" onclick="deleteRecipe(\' + r.id + \')" title="Delete">×</button>' +
+                '<button class="recipe-delete-btn" data-del-id="' + r.id + '" title="Delete">×</button>' +
               '</div>' +
             '</div>' +
             (ingrPreview ? '<div class="recipe-card-ingr">' + escHtmlM(ingrPreview) + '</div>' : '') +
             '<div class="recipe-card-actions">' +
-              '<button class="recipe-add-grocery" onclick="addIngredientsToGrocery(\' + r.id + \')">+ Grocery List</button>' +
-              '<button class="recipe-view-btn" onclick="viewRecipe(\' + r.id + \')">View</button>' +
+              '<button class="recipe-add-grocery" data-grocery-id="' + r.id + '">+ Grocery List</button>' +
+              '<button class="recipe-view-btn" data-view-id="' + r.id + '">View</button>' +
             '</div>' +
           '</div>' +
         '</div>';
       }).join('');
+      grid.querySelectorAll('[data-view-id]').forEach(function(btn) {
+        btn.addEventListener('click', function() { viewRecipe(btn.dataset.viewId); });
+      });
+      grid.querySelectorAll('[data-grocery-id]').forEach(function(btn) {
+        btn.addEventListener('click', function() { addIngredientsToGrocery(btn.dataset.groceryId); });
+      });
+      grid.querySelectorAll('[data-del-id]').forEach(function(btn) {
+        btn.addEventListener('click', function() { deleteRecipe(btn.dataset.delId); });
+      });
       renderGroceryList();
+      list.filter(function(r) { return r.hasPhoto; }).forEach(function(r) {
+        photoLoad('r_' + r.id).then(function(data) {
+          var el = document.getElementById('photo-r-' + r.id);
+          if (el && data) el.src = data;
+        });
+      });
     }
 
     function renderGroceryList() {
@@ -2002,15 +2094,21 @@
         html += groups[grp].map(function(item) {
           var chk = item.checked;
           return '<div class="grocery-item">' +
-            '<div class="grocery-check ' + (chk ? 'checked' : '') + '" onclick="toggleGrocery(\' + item.id + \')">' +
+            '<div class="grocery-check ' + (chk ? 'checked' : '') + '" data-toggle-id="' + item.id + '">' +
               (chk ? '<svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '') +
             '</div>' +
             '<span class="grocery-text ' + (chk ? 'checked' : '') + '">' + escHtmlM(item.text) + '</span>' +
-            '<button class="grocery-del" onclick="deleteGrocery(\' + item.id + \')">×</button>' +
+            '<button class="grocery-del" data-del-grocery-id="' + item.id + '">×</button>' +
           '</div>';
         }).join('');
       });
       el.innerHTML = html;
+      el.querySelectorAll('[data-toggle-id]').forEach(function(div) {
+        div.addEventListener('click', function() { toggleGrocery(div.dataset.toggleId); });
+      });
+      el.querySelectorAll('[data-del-grocery-id]').forEach(function(btn) {
+        btn.addEventListener('click', function() { deleteGrocery(btn.dataset.delGroceryId); });
+      });
     }
 
     function addIngredientsToGrocery(recipeId) {
@@ -2027,7 +2125,7 @@
       });
       saveGrocery(); renderGroceryList();
       if (added > 0) {
-        var btn = document.querySelector('[onclick="addIngredientsToGrocery(\' + recipeId + \')"]');
+        var btn = document.querySelector('[data-grocery-id="' + recipeId + '"]');
         if (btn) { var orig = btn.textContent; btn.textContent = added + ' added!'; setTimeout(function(){ btn.textContent = orig; }, 2000); }
       }
     }
@@ -2059,6 +2157,7 @@
 
     function deleteRecipe(id) {
       if (!confirm('Delete this recipe?')) return;
+      photoDel('r_' + id);
       RECIPES = RECIPES.filter(function(x) { return String(x.id) !== String(id); });
       saveRecipes(); renderMealPage();
     }
@@ -2066,7 +2165,8 @@
     function viewRecipe(id) {
       var r = RECIPES.find(function(x) { return String(x.id) === String(id); });
       if (!r) return;
-      var photoHtml = r.photo ? '<img class="recipe-modal-photo" src="' + escHtmlM(r.photo) + '">' : '';
+      var modalPhotoSrc = (r.photo && r.photo.startsWith('http')) ? escHtmlM(r.photo) : '';
+      var photoHtml = (r.hasPhoto || modalPhotoSrc) ? '<img id="photo-modal-r-' + r.id + '" class="recipe-modal-photo" src="' + modalPhotoSrc + '">' : '';
       var ingrHtml = (r.ingredients||[]).length ? '<div class="recipe-modal-section"><h4>Ingredients</h4><ul>' +
         (r.ingredients||[]).map(function(i){ return '<li>' + escHtmlM(String(i)) + '</li>'; }).join('') + '</ul></div>' : '';
       var instrHtml = r.instructions ? '<div class="recipe-modal-section"><h4>Instructions</h4><p>' + escHtmlM(r.instructions) + '</p></div>' : '';
@@ -2078,10 +2178,20 @@
         photoHtml + '<h2>' + escHtmlM(r.name) + '</h2>' + mealBadge(r.label) +
         ingrHtml + instrHtml + sourceHtml +
         '<div style="margin-top:16px;">' +
-          '<button class="recipe-add-grocery" onclick="addIngredientsToGrocery(\'' + r.id + '\');document.querySelector(\'.recipe-modal-overlay\').remove()">+ Add to Grocery List</button>' +
+          '<button class="recipe-add-grocery" id="modal-grocery-btn">+ Add to Grocery List</button>' +
         '</div></div>';
       modal.addEventListener('click', function(e) { if (e.target === modal) modal.remove(); });
+      modal.querySelector('.recipe-modal-close').addEventListener('click', function() { modal.remove(); });
+      modal.querySelector('#modal-grocery-btn').addEventListener('click', function() {
+        addIngredientsToGrocery(r.id); modal.remove();
+      });
       document.body.appendChild(modal);
+      if (r.hasPhoto) {
+        photoLoad('r_' + r.id).then(function(data) {
+          var el = document.getElementById('photo-modal-r-' + r.id);
+          if (el && data) el.src = data;
+        });
+      }
     }
 
     function initMealFilterTabs() {
@@ -2179,6 +2289,10 @@
         </div>
       </div>
     </div>
+
+</body>
+</html>
+>
 
 </body>
 </html>
