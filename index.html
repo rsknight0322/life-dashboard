@@ -765,7 +765,7 @@
 
     <div class="fsh-panel">
       <div id="fsh-status" class="fsh-status"></div>
-      <button id="fsh-setup-btn" class="fsh-btn" onclick="_FSH.setup()">🔗 Link data file</button>
+      <button id="fsh-setup-btn" class="fsh-btn" onclick="_FSH.setup()">📂 Load data file</button>
       <button id="fsh-reconnect-btn" class="fsh-btn" onclick="_FSH.reconnect()">🔄 Reconnect data file</button>
     </div>
 
@@ -1147,7 +1147,7 @@
         try {
           var h = await idbGet('fh');
           if (!h) {
-            setStatus('No data file linked yet', 'muted');
+            setStatus('Click below to load your data file', 'muted');
             showBtn('fsh-setup-btn', true);
             return;
           }
@@ -1169,7 +1169,7 @@
         }
       }
 
-      /* ── Public: first-time setup ── */
+      /* ── Public: link or re-link data file ── */
       async function setup() {
         try {
           var h = await window.showSaveFilePicker({
@@ -1178,10 +1178,26 @@
           });
           _fh = h;
           await idbPut('fh', h);
+          /* Read the file first — if it already has data, restore from it
+             instead of overwriting with the current (possibly empty) state */
+          try {
+            var file = await h.getFile();
+            var raw = await file.text();
+            if (raw.trim()) {
+              var saved = JSON.parse(raw);
+              applySnapshot(saved);
+              sessionStorage.setItem('_fsh_ready', '1');
+              showBtn('fsh-setup-btn', false);
+              setStatus('\u2713 Data restored \u2014 auto-saving active', 'ok');
+              location.reload();
+              return;
+            }
+          } catch (readErr) { /* empty or unreadable — fall through to write */ }
+          /* New / empty file — write current localStorage to it */
           sessionStorage.setItem('_fsh_ready', '1');
           await writeFile();
           showBtn('fsh-setup-btn', false);
-          setStatus('\u2713 Data file linked \u2014 all changes now save permanently', 'ok');
+          setStatus('\u2713 Data file linked \u2014 all changes save permanently', 'ok');
         } catch (e) { /* user cancelled */ }
       }
 
