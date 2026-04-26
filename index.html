@@ -164,6 +164,7 @@
 
     .page { display: none; padding: 40px 48px 64px; max-width: 860px; }
     .page.active { display: block; }
+    #page-meals { max-width: 1200px; }
 
     /* ── Page header ── */
     .page-accent {
@@ -571,7 +572,7 @@
     .coming-soon-sub { font-size: 12px; color: var(--muted); opacity: 0.6; }
 
     /* ════ MEAL PLANNER ════ */
-    .meal-layout { display: grid; grid-template-columns: 1fr 300px; gap: 20px; align-items: start; }
+    .meal-layout { display: grid; grid-template-columns: 1fr 240px; gap: 16px; align-items: start; }
     @media (max-width: 900px) { .meal-layout { grid-template-columns: 1fr; } }
     .recipe-import-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 0; }
     .recipe-url-input { flex: 1; min-width: 200px; font-family: 'DM Sans', sans-serif; font-size: 12.5px; border: 1px solid var(--border); border-radius: 8px; padding: 9px 13px; background: var(--linen); color: var(--text); outline: none; }
@@ -602,21 +603,21 @@
     .recipe-ingr-remove:hover { opacity: 0.8; }
     .ingr-add-row { display: flex; gap: 8px; }
 
-    .recipe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 4px; }
-    .recipe-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
-    .recipe-card-photo { width: 100%; height: 140px; object-fit: cover; background: var(--linen); display: block; }
-    .recipe-card-photo-placeholder { width: 100%; height: 140px; background: var(--linen); display: flex; align-items: center; justify-content: center; font-size: 32px; color: var(--muted); opacity: 0.4; }
-    .recipe-card-body { padding: 14px 16px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
-    .recipe-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
-    .recipe-card-name { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.3; flex: 1; }
+    .recipe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; margin-top: 4px; }
+    .recipe-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; }
+    .recipe-card-photo { width: 100%; height: 110px; object-fit: cover; background: var(--linen); display: block; }
+    .recipe-card-photo-placeholder { width: 100%; height: 110px; background: var(--linen); display: flex; align-items: center; justify-content: center; font-size: 26px; color: var(--muted); opacity: 0.4; }
+    .recipe-card-body { padding: 10px 12px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
+    .recipe-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; }
+    .recipe-card-name { font-size: 12.5px; font-weight: 600; color: var(--text); line-height: 1.3; flex: 1; }
     .meal-badge { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; padding: 3px 9px; border-radius: 10px; white-space: nowrap; flex-shrink: 0; }
     .badge-breakfast { background: rgba(212,163,74,0.18); color: #c17f3a; }
     .badge-lunch     { background: rgba(123,123,80,0.15); color: var(--olive); }
     .badge-dinner    { background: rgba(184,107,78,0.15); color: var(--terra); }
     .badge-dessert   { background: rgba(196,150,150,0.18); color: #b07070; }
     .badge-drink     { background: rgba(80,120,110,0.15); color: #507870; }
-    .recipe-card-ingr { font-size: 11.5px; color: var(--muted); line-height: 1.6; flex: 1; }
-    .recipe-card-actions { display: flex; gap: 8px; margin-top: 4px; }
+    .recipe-card-ingr { font-size: 10.5px; color: var(--muted); line-height: 1.5; flex: 1; }
+    .recipe-card-actions { display: flex; gap: 6px; margin-top: 2px; }
     .recipe-add-grocery { background: var(--olive); color: white; border: none; border-radius: 7px; padding: 7px 12px; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500; cursor: pointer; flex: 1; }
     .recipe-add-grocery:hover { opacity: 0.85; }
     .recipe-view-btn { background: none; border: 1px solid var(--border); border-radius: 7px; padding: 6px 10px; font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--muted); cursor: pointer; }
@@ -1044,6 +1045,90 @@
         <button class="filter-tab" data-wfilter="completed">Completed</button>
       </div>
       <div class="wine-list" id="wine-list"></div>
+    </div>
+
+    <!-- ─── MEAL PLANNER ─────────────────────────────── -->
+    <div class="page" id="page-meals">
+      <div class="page-accent"></div>
+      <div class="page-eyebrow">enjoy.life</div>
+      <h1 class="page-title" style="margin-bottom:6px;">Meal <em>Planner</em></h1>
+      <p class="page-subtitle" style="margin-bottom:24px;">Recipes, grocery lists, and meal ideas all in one place.</p>
+
+      <!-- Import / Add bar -->
+      <div class="card" style="margin-bottom:20px;padding:18px 20px;" id="recipe-import-card">
+        <div class="recipe-import-bar">
+          <input type="url" class="recipe-url-input" id="recipe-url-input" placeholder="Paste a recipe URL to import...">
+          <button class="recipe-import-btn" onclick="importRecipeUrl()">Import</button>
+          <span class="recipe-or">or</span>
+          <button class="recipe-manual-btn" id="manual-toggle-btn" onclick="toggleManualForm()">+ Add manually</button>
+        </div>
+        <div id="recipe-import-status"></div>
+        <div class="recipe-form" id="manual-recipe-form" style="display:none;">
+          <div class="recipe-form-grid">
+            <input type="text" class="todo-input" id="rf-name" placeholder="Recipe name">
+            <input type="url" class="todo-input" id="rf-source" placeholder="Source URL (optional)">
+            <div style="display:flex;gap:8px;align-items:center;">
+              <label class="wine-file-label" style="flex:1;"><span>Photo:</span><input type="file" accept="image/*" id="rf-photo" onchange="previewRfPhoto(event)"></label>
+              <img id="rf-photo-preview" style="width:48px;height:48px;object-fit:cover;border-radius:6px;display:none;">
+            </div>
+          </div>
+          <div style="margin-bottom:10px;">
+            <div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;">Label</div>
+            <div class="recipe-label-row" id="rf-label-row">
+              <button class="meal-label-btn" data-label="breakfast" onclick="setRfLabel('breakfast')">Breakfast</button>
+              <button class="meal-label-btn" data-label="lunch" onclick="setRfLabel('lunch')">Lunch</button>
+              <button class="meal-label-btn active-dinner" data-label="dinner" onclick="setRfLabel('dinner')">Dinner</button>
+              <button class="meal-label-btn" data-label="dessert" onclick="setRfLabel('dessert')">Dessert</button>
+              <button class="meal-label-btn" data-label="drink" onclick="setRfLabel('drink')">Drink</button>
+            </div>
+          </div>
+          <div style="margin-bottom:10px;">
+            <div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;">Ingredients</div>
+            <ul class="recipe-ingr-list" id="rf-ingr-list"></ul>
+            <div class="ingr-add-row">
+              <input type="text" class="todo-input" id="rf-ingr-input" placeholder="Add ingredient..." style="flex:1;" onkeydown="if(event.key==='Enter'){addRfIngredient();event.preventDefault();}">
+              <button class="recipe-manual-btn" onclick="addRfIngredient()">Add</button>
+            </div>
+          </div>
+          <div style="margin-bottom:14px;">
+            <div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;">Instructions</div>
+            <textarea class="todo-input" id="rf-instructions" rows="4" placeholder="Steps, notes, tips..." style="resize:vertical;min-height:80px;"></textarea>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="recipe-import-btn" onclick="saveManualRecipe()">Save Recipe</button>
+            <button class="recipe-manual-btn" onclick="toggleManualForm()">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter tabs -->
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;" id="recipe-filter-tabs">
+        <button class="filter-tab active" data-mfilter="all">All</button>
+        <button class="filter-tab" data-mfilter="breakfast">Breakfast</button>
+        <button class="filter-tab" data-mfilter="lunch">Lunch</button>
+        <button class="filter-tab" data-mfilter="dinner">Dinner</button>
+        <button class="filter-tab" data-mfilter="dessert">Dessert</button>
+        <button class="filter-tab" data-mfilter="drink">Drink</button>
+      </div>
+
+      <div class="meal-layout">
+        <div>
+          <div class="recipe-grid" id="recipe-grid"></div>
+          <div id="recipe-empty" style="display:none;" class="todo-empty">No recipes yet — import one or add manually above.</div>
+        </div>
+        <!-- Grocery List sidebar -->
+        <div class="grocery-card">
+          <div class="grocery-title">
+            <span>🛒 Grocery List</span>
+            <button class="grocery-clear-btn" onclick="clearCheckedGrocery()">Clear checked</button>
+          </div>
+          <div id="grocery-list-el"></div>
+          <div class="grocery-add-row">
+            <input type="text" class="grocery-add-input" id="grocery-manual-input" placeholder="Add item..." onkeydown="if(event.key==='Enter')addGroceryManual()">
+            <button class="grocery-add-btn" onclick="addGroceryManual()">Add</button>
+          </div>
+        </div>
+      </div>
     </div>
 
   </main>
@@ -2603,93 +2688,6 @@
     }
 
   </script>
-    <div class="page" id="page-meals">
-      <div class="page-accent"></div>
-      <div class="page-eyebrow">enjoy.life</div>
-      <h1 class="page-title" style="margin-bottom:6px;">Meal <em>Planner</em></h1>
-      <p class="page-subtitle" style="margin-bottom:24px;">Recipes, grocery lists, and meal ideas all in one place.</p>
-
-      <!-- Import / Add bar -->
-      <div class="card" style="margin-bottom:20px;padding:18px 20px;" id="recipe-import-card">
-        <div class="recipe-import-bar">
-          <input type="url" class="recipe-url-input" id="recipe-url-input" placeholder="Paste a recipe URL to import...">
-          <button class="recipe-import-btn" onclick="importRecipeUrl()">Import</button>
-          <span class="recipe-or">or</span>
-          <button class="recipe-manual-btn" id="manual-toggle-btn" onclick="toggleManualForm()">+ Add manually</button>
-        </div>
-        <div id="recipe-import-status"></div>
-        <div class="recipe-form" id="manual-recipe-form" style="display:none;">
-          <div class="recipe-form-grid">
-            <input type="text" class="todo-input" id="rf-name" placeholder="Recipe name">
-            <input type="url" class="todo-input" id="rf-source" placeholder="Source URL (optional)">
-            <input type="file" accept="image/*" id="rf-photo" style="display:none" onchange="previewRfPhoto(event)">
-            <div style="display:flex;gap:8px;align-items:center;">
-              <label class="wine-file-label" style="flex:1;"><span>Photo:</span><input type="file" accept="image/*" id="rf-photo" onchange="previewRfPhoto(event)"></label>
-              <img id="rf-photo-preview" style="width:48px;height:48px;object-fit:cover;border-radius:6px;display:none;">
-            </div>
-          </div>
-          <div style="margin-bottom:10px;">
-            <div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;">Label</div>
-            <div class="recipe-label-row" id="rf-label-row">
-              <button class="meal-label-btn" data-label="breakfast" onclick="setRfLabel('breakfast')">Breakfast</button>
-              <button class="meal-label-btn" data-label="lunch" onclick="setRfLabel('lunch')">Lunch</button>
-              <button class="meal-label-btn active-dinner" data-label="dinner" onclick="setRfLabel('dinner')">Dinner</button>
-              <button class="meal-label-btn" data-label="dessert" onclick="setRfLabel('dessert')">Dessert</button>
-              <button class="meal-label-btn" data-label="drink" onclick="setRfLabel('drink')">Drink</button>
-            </div>
-          </div>
-          <div style="margin-bottom:10px;">
-            <div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;">Ingredients</div>
-            <ul class="recipe-ingr-list" id="rf-ingr-list"></ul>
-            <div class="ingr-add-row">
-              <input type="text" class="todo-input" id="rf-ingr-input" placeholder="Add ingredient..." style="flex:1;" onkeydown="if(event.key==='Enter'){addRfIngredient();event.preventDefault();}">
-              <button class="recipe-manual-btn" onclick="addRfIngredient()">Add</button>
-            </div>
-          </div>
-          <div style="margin-bottom:14px;">
-            <div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;">Instructions</div>
-            <textarea class="todo-input" id="rf-instructions" rows="4" placeholder="Steps, notes, tips..." style="resize:vertical;min-height:80px;"></textarea>
-          </div>
-          <div style="display:flex;gap:8px;">
-            <button class="recipe-import-btn" onclick="saveManualRecipe()">Save Recipe</button>
-            <button class="recipe-manual-btn" onclick="toggleManualForm()">Cancel</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Filter tabs -->
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;" id="recipe-filter-tabs">
-        <button class="filter-tab active" data-mfilter="all">All</button>
-        <button class="filter-tab" data-mfilter="breakfast">Breakfast</button>
-        <button class="filter-tab" data-mfilter="lunch">Lunch</button>
-        <button class="filter-tab" data-mfilter="dinner">Dinner</button>
-        <button class="filter-tab" data-mfilter="dessert">Dessert</button>
-        <button class="filter-tab" data-mfilter="drink">Drink</button>
-      </div>
-
-      <div class="meal-layout">
-        <div>
-          <div class="recipe-grid" id="recipe-grid"></div>
-          <div id="recipe-empty" style="display:none;" class="todo-empty">No recipes yet &#8212; import one or add manually above.</div>
-        </div>
-        <!-- Grocery List sidebar -->
-        <div class="grocery-card">
-          <div class="grocery-title">
-            <span>&#128722; Grocery List</span>
-            <button class="grocery-clear-btn" onclick="clearCheckedGrocery()">Clear checked</button>
-          </div>
-          <div id="grocery-list-el"></div>
-          <div class="grocery-add-row">
-            <input type="text" class="grocery-add-input" id="grocery-manual-input" placeholder="Add item..." onkeydown="if(event.key==='Enter')addGroceryManual()">
-            <button class="grocery-add-btn" onclick="addGroceryManual()">Add</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-</body>
-</html>
->
 
 </body>
 </html>
