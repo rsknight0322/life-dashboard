@@ -1787,7 +1787,7 @@
     renderBirthdayPage();
 
     /* ════ MEAL PLANNER ════ */
-    var RECIPES = JSON.parse(localStorage.getItem('_recipes') || '[]');
+    var RECIPES = (function(a,s){return a.filter(function(r){var k=r.id||r.name;return s[k]?false:(s[k]=true);});})(JSON.parse(localStorage.getItem('_recipes')||'[]'),{});
     var GROCERY  = JSON.parse(localStorage.getItem('_grocery')  || '[]');
     var _rfIngredients = [];
     var _rfLabel = 'dinner';
