@@ -766,7 +766,8 @@
 
     <div class="fsh-panel">
       <div id="fsh-status" class="fsh-status"></div>
-      <button id="fsh-setup-btn" class="fsh-btn" onclick="_FSH.setup()">📂 Load data file</button>
+      <button id="fsh-setup-btn" class="fsh-btn" onclick="_FSH.setup()">📂 Open dashboard-data.json</button>
+      <button id="fsh-create-btn" class="fsh-btn" onclick="_FSH.createNew()" style="margin-top:4px;background:var(--muted);font-size:10.5px;">+ Create new data file</button>
       <button id="fsh-reconnect-btn" class="fsh-btn" onclick="_FSH.reconnect()">🔄 Reconnect data file</button>
     </div>
 
@@ -1232,8 +1233,9 @@
         try {
           var h = await idbGet('fh');
           if (!h) {
-            setStatus('Click below to load your data file', 'muted');
+            setStatus('No data file linked', 'muted');
             showBtn('fsh-setup-btn', true);
+            showBtn('fsh-create-btn', true);
             return;
           }
           var perm = await h.queryPermission({ mode: 'readwrite' });
@@ -1257,9 +1259,9 @@
       /* ── Public: link or re-link data file ── */
       async function setup() {
         try {
-          var h = await window.showSaveFilePicker({
-            suggestedName: 'dashboard-data.json',
-            types: [{ description: 'Dashboard Data', accept: { 'application/json': ['.json'] } }]
+          var [h] = await window.showOpenFilePicker({
+            types: [{ description: 'Dashboard Data', accept: { 'application/json': ['.json'] } }],
+            multiple: false
           });
           _fh = h;
           await idbPut('fh', h);
@@ -1286,6 +1288,23 @@
         } catch (e) { /* user cancelled */ }
       }
 
+      /* ── Public: create brand-new data file (first-time only) ── */
+      async function createNew() {
+        try {
+          var h = await window.showSaveFilePicker({
+            suggestedName: 'dashboard-data.json',
+            types: [{ description: 'Dashboard Data', accept: { 'application/json': ['.json'] } }]
+          });
+          _fh = h;
+          await idbPut('fh', h);
+          sessionStorage.setItem('_fsh_ready', '1');
+          await writeFile();
+          showBtn('fsh-setup-btn', false);
+          showBtn('fsh-create-btn', false);
+          setStatus('✓ New data file created — auto-saving active', 'ok');
+        } catch (e) { /* user cancelled */ }
+      }
+
       /* ── Public: reconnect after browser restart ── */
       async function reconnect() {
         if (!_fh) return;
@@ -1302,7 +1321,7 @@
       }
 
       init();
-      return { setup: setup, reconnect: reconnect };
+      return { setup: setup, reconnect: reconnect, createNew: createNew };
     })();
 
     /* ── Nav ── */
@@ -2288,61 +2307,20 @@
       catch(e) { console.warn('Grocery save failed', e); }
     }
 
-    /* ════ PHOTO STORE — IndexedDB (no size limit) ════ */
-    var _photoDB = null;
-    function _getPhotoDB() {
-      if (_photoDB) return Promise.resolve(_photoDB);
-      return new Promise(function(resolve, reject) {
-        var req = indexedDB.open('dash_photos', 1);
-        req.onupgradeneeded = function(e) { e.target.result.createObjectStore('p'); };
-        req.onsuccess = function(e) { _photoDB = e.target.result; resolve(_photoDB); };
-        req.onerror = function() { reject(new Error('IndexedDB unavailable')); };
-      });
-    }
+    /* ════ PHOTO STORE — localStorage (saved to data file) ════ */
     function photoSave(key, dataUrl) {
-      return _getPhotoDB().then(function(db) {
-        return new Promise(function(resolve, reject) {
-          var tx = db.transaction('p', 'readwrite');
-          tx.objectStore('p').put(dataUrl, key);
-          tx.oncomplete = resolve; tx.onerror = reject;
-        });
-      });
+      try { localStorage.setItem('_photo_' + key, dataUrl); } catch(e) { console.warn('Photo save failed', e); }
+      return Promise.resolve();
     }
     function photoLoad(key) {
-      return _getPhotoDB().then(function(db) {
-        return new Promise(function(resolve) {
-          var req = db.transaction('p').objectStore('p').get(key);
-          req.onsuccess = function() { resolve(req.result || null); };
-          req.onerror   = function() { resolve(null); };
-        });
-      });
+      return Promise.resolve(localStorage.getItem('_photo_' + key) || null);
     }
     function photoDel(key) {
-      return _getPhotoDB().then(function(db) {
-        return new Promise(function(resolve) {
-          var tx = db.transaction('p', 'readwrite');
-          tx.objectStore('p').delete(key);
-          tx.oncomplete = resolve; tx.onerror = resolve;
-        });
-      });
+      localStorage.removeItem('_photo_' + key);
+      return Promise.resolve();
     }
     function migratePhotosToIndexedDB() {
-      var wChanged = false;
-      WINES.forEach(function(w) {
-        if (w.photo && w.photo.startsWith('data:')) {
-          photoSave('w_' + w.id, w.photo);
-          w.photo = null; w.hasPhoto = true; wChanged = true;
-        }
-      });
-      if (wChanged) saveWines();
-      var rChanged = false;
-      RECIPES.forEach(function(r) {
-        if (r.photo && r.photo.startsWith('data:')) {
-          photoSave('r_' + r.id, r.photo);
-          r.photo = null; r.hasPhoto = true; rChanged = true;
-        }
-      });
-      if (rChanged) saveRecipes();
+      /* No-op: photos now stored directly in localStorage via photoSave/photoLoad */
     }
 
     function escHtmlM(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -2359,10 +2337,23 @@
       status.className = 'recipe-import-status';
       status.textContent = 'Fetching recipe...';
       try {
-        var proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(url);
-        var res = await fetch(proxyUrl);
-        if (!res.ok) throw new Error('Could not fetch page');
-        var html = await res.text();
+        var html = null;
+        var proxies = [
+          { url: 'https://corsproxy.io/?' + encodeURIComponent(url), json: false },
+          { url: 'https://api.allorigins.win/get?url=' + encodeURIComponent(url), json: true },
+          { url: 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url), json: false }
+        ];
+        for (var i = 0; i < proxies.length; i++) {
+          try {
+            status.textContent = 'Fetching recipe... (attempt ' + (i + 1) + ')';
+            var res = await fetch(proxies[i].url, { signal: AbortSignal.timeout(8000) });
+            if (!res.ok) continue;
+            var text = await res.text();
+            html = proxies[i].json ? JSON.parse(text).contents : text;
+            if (html && html.length > 100) break;
+          } catch(e) { /* try next proxy */ }
+        }
+        if (!html) throw new Error('Could not fetch the page — try adding the recipe manually.');
         var recipe = extractJsonLdRecipe(html);
         if (!recipe) throw new Error('No recipe data found on this page. Try adding manually.');
         recipe.sourceUrl = url;
