@@ -655,6 +655,55 @@
     .grocery-add-btn { background: var(--terra-lt); color: var(--terra); border: none; border-radius: 7px; padding: 7px 12px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; cursor: pointer; }
     .grocery-empty { font-size: 12px; color: var(--muted); text-align: center; padding: 20px 0; opacity: 0.6; }
     .grocery-group-label { font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); padding: 10px 0 4px; font-weight: 600; opacity: 0.7; }
+    .recipe-plan-btn { background: none; border: 1px solid var(--border); border-radius: 7px; padding: 6px 8px; font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--muted); cursor: pointer; }
+    .recipe-plan-btn:hover { border-color: var(--terra); color: var(--terra); }
+
+    /* ════ MEAL CALENDAR ════ */
+    .mc-tabs { display: flex; gap: 6px; margin-bottom: 20px; }
+    .mc-tab { background: none; border: 1.5px solid var(--border); border-radius: 20px; padding: 7px 18px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; color: var(--muted); cursor: pointer; transition: all 0.15s; }
+    .mc-tab:hover { border-color: var(--olive); color: var(--olive); }
+    .mc-tab.active { background: var(--olive); border-color: var(--olive); color: white; }
+    .mc-plan-banner { display: none; align-items: center; justify-content: space-between; background: rgba(123,123,80,0.1); border: 1px solid var(--olive); border-radius: 10px; padding: 10px 16px; margin-bottom: 14px; font-size: 12.5px; color: var(--olive); }
+    .mc-plan-banner.active { display: flex; }
+    .mc-banner-cancel { background: none; border: none; color: var(--olive); cursor: pointer; font-size: 12px; opacity: 0.7; padding: 0 4px; font-family: 'DM Sans', sans-serif; }
+    .mc-banner-cancel:hover { opacity: 1; }
+    .mc-cal-wrap { max-width: 900px; }
+    .mc-cal-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .mc-month-label { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; color: var(--text); flex: 1; text-align: center; }
+    .mc-nav-btn { background: none; border: 1px solid var(--border); border-radius: 8px; padding: 6px 16px; font-family: 'DM Sans', sans-serif; font-size: 18px; color: var(--muted); cursor: pointer; line-height: 1; }
+    .mc-nav-btn:hover { border-color: var(--olive); color: var(--olive); }
+    .mc-day-headers { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 4px; }
+    .mc-day-header { font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); text-align: center; padding: 4px 0; }
+    .mc-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+    .mc-cell { background: var(--card); border: 1px solid var(--border); border-radius: 8px; min-height: 80px; padding: 7px 8px 5px; cursor: pointer; transition: box-shadow 0.14s, border-color 0.14s; display: flex; flex-direction: column; overflow: hidden; }
+    .mc-cell:hover { border-color: var(--olive); box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+    .mc-grid.plan-mode .mc-cell:not(.empty):hover { border-color: var(--terra); background: rgba(184,107,78,0.06); }
+    .mc-cell.empty { background: transparent; border-color: transparent; cursor: default; pointer-events: none; }
+    .mc-cell.today { border-color: var(--terra); background: rgba(184,107,78,0.04); }
+    .mc-cell-num { font-size: 11px; font-weight: 600; color: var(--muted); margin-bottom: 3px; flex-shrink: 0; }
+    .mc-cell.today .mc-cell-num { color: var(--terra); font-weight: 700; }
+    .mc-meal-chip { font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 8px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; max-width: 100%; flex-shrink: 0; }
+    .mc-more { font-size: 9px; color: var(--muted); margin-top: 1px; opacity: 0.8; }
+    .mc-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.38); z-index: 300; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .mc-modal { background: var(--cream); border-radius: 16px; max-width: 420px; width: 100%; max-height: 80vh; overflow-y: auto; padding: 26px; position: relative; box-shadow: 0 8px 40px rgba(0,0,0,0.18); }
+    .mc-modal-close { position: absolute; top: 14px; right: 16px; background: none; border: none; font-size: 22px; color: var(--muted); cursor: pointer; line-height: 1; padding: 0; }
+    .mc-modal-close:hover { color: var(--text); }
+    .mc-modal-date { font-family: 'Cormorant Garamond', serif; font-size: 20px; color: var(--text); margin: 0 0 14px; font-style: italic; }
+    .mc-modal-meal-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid rgba(212,196,174,0.3); }
+    .mc-modal-meal-item:last-child { border-bottom: none; }
+    .mc-modal-del { background: none; border: none; color: var(--muted); opacity: 0.35; cursor: pointer; font-size: 16px; padding: 0 3px; flex-shrink: 0; line-height: 1; }
+    .mc-modal-del:hover { opacity: 0.85; color: var(--terra); }
+    .mc-modal-meals-empty { font-size: 12px; color: var(--muted); padding: 6px 0 2px; opacity: 0.7; }
+    .mc-add-section { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 14px; }
+    .mc-add-title { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+    .mc-add-name { width: 100%; font-family: 'DM Sans', sans-serif; font-size: 12.5px; border: 1px solid var(--border); border-radius: 8px; padding: 9px 13px; background: var(--linen); color: var(--text); outline: none; margin-bottom: 10px; box-sizing: border-box; }
+    .mc-add-name:focus { border-color: var(--olive); }
+    .mc-type-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+    .mc-add-btn { background: var(--olive); color: white; border: none; border-radius: 8px; padding: 9px 20px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; cursor: pointer; }
+    .mc-add-btn:hover { opacity: 0.85; }
+    .mc-recipe-select { width: 100%; font-family: 'DM Sans', sans-serif; font-size: 12px; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; background: var(--linen); color: var(--text); outline: none; margin-bottom: 10px; box-sizing: border-box; }
+    .mc-recipe-select:focus { border-color: var(--olive); }
+
     /* ── Workout Plan Page ── */
     .wo-subtitle { font-size: 11px; color: var(--muted); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.07em; }
     .wo-week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 22px; }
@@ -1053,7 +1102,16 @@
       <div class="page-accent"></div>
       <div class="page-eyebrow">enjoy.life</div>
       <h1 class="page-title" style="margin-bottom:6px;">Meal <em>Planner</em></h1>
-      <p class="page-subtitle" style="margin-bottom:24px;">Recipes, grocery lists, and meal ideas all in one place.</p>
+      <p class="page-subtitle" style="margin-bottom:18px;">Recipes, grocery lists, and meal ideas all in one place.</p>
+
+      <!-- Sub-tabs -->
+      <div class="mc-tabs">
+        <button class="mc-tab active" id="mc-tab-recipes" onclick="switchMcTab('recipes')">📋 Recipes</button>
+        <button class="mc-tab" id="mc-tab-calendar" onclick="switchMcTab('calendar')">📅 Calendar</button>
+      </div>
+
+      <!-- Recipes view -->
+      <div id="mc-view-recipes">
 
       <!-- Import / Add bar -->
       <div class="card" style="margin-bottom:20px;padding:18px 20px;" id="recipe-import-card">
@@ -1128,6 +1186,32 @@
             <input type="text" class="grocery-add-input" id="grocery-manual-input" placeholder="Add item..." onkeydown="if(event.key==='Enter')addGroceryManual()">
             <button class="grocery-add-btn" onclick="addGroceryManual()">Add</button>
           </div>
+        </div>
+      </div>
+      </div><!-- /mc-view-recipes -->
+
+      <!-- Calendar view -->
+      <div id="mc-view-calendar" style="display:none;">
+        <div class="mc-plan-banner" id="mc-plan-banner">
+          <span id="mc-plan-banner-text"></span>
+          <button class="mc-banner-cancel" onclick="cancelMcPlanMode()">&#10005; Cancel</button>
+        </div>
+        <div class="mc-cal-wrap">
+          <div class="mc-cal-header">
+            <button class="mc-nav-btn" id="mc-prev-btn">&#8249;</button>
+            <div class="mc-month-label" id="mc-month-label"></div>
+            <button class="mc-nav-btn" id="mc-next-btn">&#8250;</button>
+          </div>
+          <div class="mc-day-headers">
+            <div class="mc-day-header">Sun</div>
+            <div class="mc-day-header">Mon</div>
+            <div class="mc-day-header">Tue</div>
+            <div class="mc-day-header">Wed</div>
+            <div class="mc-day-header">Thu</div>
+            <div class="mc-day-header">Fri</div>
+            <div class="mc-day-header">Sat</div>
+          </div>
+          <div class="mc-grid" id="mc-grid"></div>
         </div>
       </div>
     </div>
@@ -2291,11 +2375,17 @@
     var _rfLabel = 'dinner';
     var _rfPhotoData = null;
     var _mealFilter = 'all';
+    var MEAL_PLAN = JSON.parse(localStorage.getItem('_meal_plan') || '{}');
+    var _mcYear = new Date().getFullYear();
+    var _mcMonth = new Date().getMonth();
+    var _mcPlanRecipe = null;
+    var _mcEscListener = null;
 
     migratePhotosToIndexedDB();
     document.addEventListener('DOMContentLoaded', function() {
       initMealFilterTabs();
       renderMealPage();
+      initMcCalendar();
     });
 
     function saveRecipes() {
@@ -2527,8 +2617,9 @@
             '</div>' +
             (ingrPreview ? '<div class="recipe-card-ingr">' + escHtmlM(ingrPreview) + '</div>' : '') +
             '<div class="recipe-card-actions">' +
-              '<button class="recipe-add-grocery" data-grocery-id="' + r.id + '">+ Grocery List</button>' +
+              '<button class="recipe-add-grocery" data-grocery-id="' + r.id + '">+ Grocery</button>' +
               '<button class="recipe-view-btn" data-view-id="' + r.id + '">View</button>' +
+              '<button class="recipe-plan-btn" data-plan-id="' + r.id + '" title="Add to meal calendar">&#128197;</button>' +
             '</div>' +
           '</div>' +
         '</div>';
@@ -2541,6 +2632,9 @@
       });
       grid.querySelectorAll('[data-del-id]').forEach(function(btn) {
         btn.addEventListener('click', function() { deleteRecipe(btn.dataset.delId); });
+      });
+      grid.querySelectorAll('[data-plan-id]').forEach(function(btn) {
+        btn.addEventListener('click', function() { planRecipeMode(btn.dataset.planId); });
       });
       renderGroceryList();
       list.filter(function(r) { return r.hasPhoto; }).forEach(function(r) {
@@ -2676,6 +2770,254 @@
           renderMealPage();
         });
       });
+    }
+
+    /* ════ MEAL CALENDAR ════ */
+    function saveMealPlan() {
+      try { localStorage.setItem('_meal_plan', JSON.stringify(MEAL_PLAN)); }
+      catch(e) { console.warn('Meal plan save failed', e); }
+    }
+
+    function switchMcTab(tab) {
+      var rView = document.getElementById('mc-view-recipes');
+      var cView = document.getElementById('mc-view-calendar');
+      var rTab  = document.getElementById('mc-tab-recipes');
+      var cTab  = document.getElementById('mc-tab-calendar');
+      if (!rView || !cView) return;
+      if (tab === 'calendar') {
+        rView.style.display = 'none'; cView.style.display = '';
+        if (rTab) rTab.classList.remove('active');
+        if (cTab) cTab.classList.add('active');
+        renderCalendar();
+      } else {
+        rView.style.display = ''; cView.style.display = 'none';
+        if (cTab) cTab.classList.remove('active');
+        if (rTab) rTab.classList.add('active');
+      }
+    }
+
+    var MC_MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+    function mcPad(n) { return n < 10 ? '0' + n : String(n); }
+
+    function renderCalendar() {
+      var grid  = document.getElementById('mc-grid');
+      var label = document.getElementById('mc-month-label');
+      if (!grid || !label) return;
+      label.textContent = MC_MONTHS[_mcMonth] + ' ' + _mcYear;
+
+      var today = new Date();
+      var todayStr = today.getFullYear() + '-' + mcPad(today.getMonth()+1) + '-' + mcPad(today.getDate());
+      var firstDay = new Date(_mcYear, _mcMonth, 1).getDay();
+      var daysInMonth = new Date(_mcYear, _mcMonth + 1, 0).getDate();
+
+      var cells = [];
+      for (var i = 0; i < firstDay; i++) { cells.push('<div class="mc-cell empty"></div>'); }
+      for (var d = 1; d <= daysInMonth; d++) {
+        var dateStr = _mcYear + '-' + mcPad(_mcMonth + 1) + '-' + mcPad(d);
+        var meals = MEAL_PLAN[dateStr] || [];
+        var isToday = dateStr === todayStr;
+        var chips = '';
+        meals.slice(0, 3).forEach(function(m) {
+          chips += '<span class="mc-meal-chip badge-' + (m.type || 'dinner') + '">' + escHtmlM(m.name) + '</span>';
+        });
+        if (meals.length > 3) chips += '<span class="mc-more">+' + (meals.length - 3) + ' more</span>';
+        cells.push('<div class="mc-cell' + (isToday ? ' today' : '') + '" data-mc-date="' + dateStr + '">' +
+          '<div class="mc-cell-num">' + d + '</div>' + chips + '</div>');
+      }
+      grid.innerHTML = cells.join('');
+      if (_mcPlanRecipe) grid.classList.add('plan-mode'); else grid.classList.remove('plan-mode');
+    }
+
+    function planRecipeMode(recipeId) {
+      var r = RECIPES.find(function(x) { return String(x.id) === String(recipeId); });
+      if (!r) return;
+      _mcPlanRecipe = { name: r.name, type: r.label || 'dinner' };
+      switchMcTab('calendar');
+      var banner = document.getElementById('mc-plan-banner');
+      var bannerText = document.getElementById('mc-plan-banner-text');
+      if (banner && bannerText) {
+        bannerText.textContent = 'Tap a day to add "' + r.name + '" to your plan';
+        banner.classList.add('active');
+      }
+    }
+
+    function cancelMcPlanMode() {
+      _mcPlanRecipe = null;
+      var banner = document.getElementById('mc-plan-banner');
+      if (banner) banner.classList.remove('active');
+      renderCalendar();
+    }
+
+    function openMcModal(dateStr) {
+      var existing = document.getElementById('mc-modal-overlay');
+      if (existing) existing.remove();
+
+      var dateObj = new Date(dateStr + 'T12:00:00');
+      var dateLabel = MC_MONTHS[dateObj.getMonth()] + ' ' + dateObj.getDate() + ', ' + dateObj.getFullYear();
+      var MC_TYPES = ['breakfast','lunch','dinner','dessert','drink'];
+      var _modalType = 'dinner';
+
+      function buildMealsList(meals) {
+        if (!meals.length) return '<div class="mc-modal-meals-empty">Nothing planned yet — add something below.</div>';
+        return meals.map(function(m) {
+          return '<div class="mc-modal-meal-item">' +
+            '<span class="meal-badge badge-' + (m.type||'dinner') + '">' + (m.type||'dinner') + '</span>' +
+            '<span style="flex:1;font-size:12.5px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escHtmlM(m.name) + '</span>' +
+            '<button class="mc-modal-del" data-del-meal-id="' + m.id + '">&#215;</button>' +
+          '</div>';
+        }).join('');
+      }
+
+      function buildTypeRow(selected) {
+        return MC_TYPES.map(function(t) {
+          return '<button class="meal-label-btn' + (t === selected ? ' active-' + t : '') + '" data-mc-type-btn="' + t + '">' +
+            t.charAt(0).toUpperCase() + t.slice(1) + '</button>';
+        }).join('');
+      }
+
+      var recipePickerHtml = RECIPES.length
+        ? '<select class="mc-recipe-select" id="mc-recipe-picker">' +
+            '<option value="">— pick from saved recipes —</option>' +
+            RECIPES.map(function(r) {
+              return '<option value="' + escHtmlM(r.name) + '|' + (r.label||'dinner') + '">' + escHtmlM(r.name) + '</option>';
+            }).join('') +
+          '</select>'
+        : '';
+
+      var modal = document.createElement('div');
+      modal.className = 'mc-modal-overlay';
+      modal.id = 'mc-modal-overlay';
+      modal.innerHTML =
+        '<div class="mc-modal">' +
+          '<button class="mc-modal-close" id="mc-modal-close-btn">&#215;</button>' +
+          '<div class="mc-modal-date">' + dateLabel + '</div>' +
+          '<div id="mc-modal-meals-list">' + buildMealsList(MEAL_PLAN[dateStr] || []) + '</div>' +
+          '<div class="mc-add-section">' +
+            '<div class="mc-add-title">Add a meal</div>' +
+            recipePickerHtml +
+            '<input type="text" class="mc-add-name" id="mc-add-name-input" placeholder="Meal name...">' +
+            '<div class="mc-type-row" id="mc-type-row">' + buildTypeRow(_modalType) + '</div>' +
+            '<button class="mc-add-btn" id="mc-add-confirm-btn">Add to Plan</button>' +
+          '</div>' +
+        '</div>';
+
+      document.body.appendChild(modal);
+
+      // Close on overlay click or close button
+      modal.addEventListener('click', function(e) { if (e.target === modal) modal.remove(); });
+      modal.querySelector('#mc-modal-close-btn').addEventListener('click', function() { modal.remove(); });
+
+      // Escape key close
+      if (_mcEscListener) document.removeEventListener('keydown', _mcEscListener);
+      _mcEscListener = function(e) {
+        if (e.key === 'Escape') {
+          var o = document.getElementById('mc-modal-overlay');
+          if (o) { o.remove(); }
+          document.removeEventListener('keydown', _mcEscListener);
+          _mcEscListener = null;
+        }
+      };
+      document.addEventListener('keydown', _mcEscListener);
+
+      // Type row selection
+      var typeRow = modal.querySelector('#mc-type-row');
+      typeRow.addEventListener('click', function(e) {
+        var btn = e.target.closest('[data-mc-type-btn]');
+        if (!btn) return;
+        _modalType = btn.dataset.mcTypeBtn;
+        typeRow.querySelectorAll('[data-mc-type-btn]').forEach(function(b) {
+          b.className = 'meal-label-btn' + (b.dataset.mcTypeBtn === _modalType ? ' active-' + _modalType : '');
+        });
+      });
+
+      // Recipe picker auto-fill
+      var picker = modal.querySelector('#mc-recipe-picker');
+      if (picker) {
+        picker.addEventListener('change', function() {
+          if (!picker.value) return;
+          var parts = picker.value.split('|');
+          var nameIn = modal.querySelector('#mc-add-name-input');
+          if (nameIn) nameIn.value = parts[0];
+          _modalType = parts[1] || 'dinner';
+          typeRow.querySelectorAll('[data-mc-type-btn]').forEach(function(b) {
+            b.className = 'meal-label-btn' + (b.dataset.mcTypeBtn === _modalType ? ' active-' + _modalType : '');
+          });
+        });
+      }
+
+      // Delete meal
+      modal.querySelector('#mc-modal-meals-list').addEventListener('click', function(e) {
+        var btn = e.target.closest('[data-del-meal-id]');
+        if (!btn) return;
+        var mId = btn.dataset.delMealId;
+        if (MEAL_PLAN[dateStr]) {
+          MEAL_PLAN[dateStr] = MEAL_PLAN[dateStr].filter(function(m) { return String(m.id) !== String(mId); });
+          if (!MEAL_PLAN[dateStr].length) delete MEAL_PLAN[dateStr];
+          saveMealPlan();
+          renderCalendar();
+          var listEl = modal.querySelector('#mc-modal-meals-list');
+          if (listEl) listEl.innerHTML = buildMealsList(MEAL_PLAN[dateStr] || []);
+        }
+      });
+
+      // Add meal
+      modal.querySelector('#mc-add-confirm-btn').addEventListener('click', function() {
+        var nameIn = modal.querySelector('#mc-add-name-input');
+        var name = (nameIn ? nameIn.value : '').trim();
+        if (!name) { if (nameIn) nameIn.focus(); return; }
+        if (!MEAL_PLAN[dateStr]) MEAL_PLAN[dateStr] = [];
+        MEAL_PLAN[dateStr].push({ id: String(Date.now() + Math.random()), name: name, type: _modalType });
+        saveMealPlan();
+        renderCalendar();
+        var listEl = modal.querySelector('#mc-modal-meals-list');
+        if (listEl) listEl.innerHTML = buildMealsList(MEAL_PLAN[dateStr]);
+        if (nameIn) nameIn.value = '';
+        if (picker) picker.value = '';
+      });
+
+      // Enter key in name input
+      var nameInput = modal.querySelector('#mc-add-name-input');
+      if (nameInput) {
+        nameInput.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') { e.preventDefault(); modal.querySelector('#mc-add-confirm-btn').click(); }
+        });
+        setTimeout(function() { nameInput.focus(); }, 60);
+      }
+    }
+
+    function initMcCalendar() {
+      var prevBtn = document.getElementById('mc-prev-btn');
+      var nextBtn = document.getElementById('mc-next-btn');
+      if (prevBtn) {
+        prevBtn.addEventListener('click', function() {
+          _mcMonth--; if (_mcMonth < 0) { _mcMonth = 11; _mcYear--; }
+          renderCalendar();
+        });
+      }
+      if (nextBtn) {
+        nextBtn.addEventListener('click', function() {
+          _mcMonth++; if (_mcMonth > 11) { _mcMonth = 0; _mcYear++; }
+          renderCalendar();
+        });
+      }
+      var grid = document.getElementById('mc-grid');
+      if (grid) {
+        grid.addEventListener('click', function(e) {
+          var cell = e.target.closest('[data-mc-date]');
+          if (!cell) return;
+          var dateStr = cell.dataset.mcDate;
+          if (_mcPlanRecipe) {
+            // Plan mode: add the recipe directly to this day
+            if (!MEAL_PLAN[dateStr]) MEAL_PLAN[dateStr] = [];
+            MEAL_PLAN[dateStr].push({ id: String(Date.now() + Math.random()), name: _mcPlanRecipe.name, type: _mcPlanRecipe.type });
+            saveMealPlan();
+            cancelMcPlanMode();
+          } else {
+            openMcModal(dateStr);
+          }
+        });
+      }
     }
 
   </script>
